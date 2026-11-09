@@ -14,13 +14,18 @@ deliberately broken copy, so a pass here cannot be a gate that never fires):
   K3   filmkit_rules_selftest | a copy whose rules file lost a film type FAILS it
   K4   timeline selftest | a copy whose schema says schema_version 2 FAILS it
   K5   review selftest | a copy with a renamed refusal id FAILS it
-  K6   edit selftest (the live ComfyUI control skips: no server) | a copy with a corrupted EDL parser FAILS it
-  K7   every instrument's own --selftest (known-true and known-false synthetic inputs) | a tool whose selftest
-       is made to assert the wrong value FAILS
+  K6   edit selftest (its own controls; the one that needs a live ComfyUI server reports skip when none runs;
+       no mutant row)
+  K7   the --selftest of the 29 instruments listed in INSTRUMENTS (known-true and known-false synthetic inputs;
+       compare, measure_arm, textcompare, make_beat_track and avio have none) | phaselock with lock() replaced by a
+       function that always answers "not locked" FAILS its selftest (a mutant for that one instrument only)
   K8   the worked example (films/fanout-pool-explainer): tl.py validate/resolve/validate on a temp copy gives
-       0 blocking rows | the same copy with a required decision deleted gives a blocking row (exit 2)
+       0 blocking rows | the same copy with decisions.energy.value set to "frantic" (outside the schema enum)
+       gives 1 blocking row (exit 2)
 Needs: Python 3.12, numpy, scipy, matplotlib, opencv-python-headless, pillow, playwright (+ chromium), OpenTimelineIO,
-ffmpeg and ffprobe on PATH. Nothing reads ~/.claude or the network.
+ffmpeg and ffprobe on PATH. The mutants run on temp copies; the positive runs use reference-impl/ in place with
+bytecode writing off. The controls do not touch the network and do not read ~/.claude (the optional full filmkit
+selftest, --full, looks for a works-contract tool under ~/.claude and skips its checks when it is absent).
 """
 from __future__ import annotations
 
@@ -46,7 +51,7 @@ ENV = {**os.environ, "PYTHONUTF8": "1", "PYTHONDONTWRITEBYTECODE": "1"}
 
 INSTRUMENTS = ("avsync beatgrid bgswitch blurdip camflow cutdrivers density domlayers fidelity flashwash framebox "
                "guidechar measure_narrated measure_product measure_showreel narrlock phaselock runsim segments segsim "
-               "shapematch sheets shotstats springfit subframe_render swapgrey variance").split()
+               "preview screenlines shapematch sheets shotstats springfit subframe_render swapgrey variance").split()
 results: list[tuple[str, str, str, str, bool]] = []
 
 
@@ -188,7 +193,16 @@ def main() -> int:
         return 0
     only = set(a.only.split(",")) if a.only else None
     want = lambda cid: only is None or cid in only  # noqa: E731
-    print(f"motion-video-kit controls: python {sys.version.split()[0]}, kit reference-impl/ ({platform.system()} {platform.release()})\n")
+    print(f"motion-video-kit controls: python {sys.version.split()[0]}, kit reference-impl/ ({platform.system()} {platform.release()})")
+    from importlib import metadata
+    vers = []
+    for pkg in ("numpy", "scipy", "matplotlib", "opencv-python-headless", "pillow", "playwright", "OpenTimelineIO"):
+        try:
+            vers.append(f"{pkg} {metadata.version(pkg)}")
+        except metadata.PackageNotFoundError:
+            vers.append(f"{pkg} NOT INSTALLED")
+    ff = shutil.which("ffmpeg")
+    print("packages: " + ", ".join(vers) + f"; ffmpeg on PATH: {'yes' if ff else 'NO'}\n")
     if want("K1"):
         k1()
     if want("K2"):

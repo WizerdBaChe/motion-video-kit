@@ -1,6 +1,6 @@
 # motion-video-kit
 
-> A Claude Code skill and toolkit for making a whole code-rendered video (hype and intro ads, product tours, showreels, narrated explainers): the motion-video skill (ten-step order of work, five method documents with evidence tiers), a director-sheet layer (film.timeline.json validated, resolved to seconds and approved by tools/timeline/tl.py), filmkit (frame-by-frame render, encode, verify, publish; check.py rules FK-R), a review loop (gates G0-G3, at most 3 rounds), an edit route (EDL / OTIO with provenance), 27 measuring instruments that each carry a --selftest with known-true and known-false synthetic inputs, and one worked example film. Tested on Windows 11 and Python 3.12; no API key needed. The gates catch a careless agent, not an evasive one (docs/EVIDENCE.md).
+> A Claude Code skill and toolkit for making a whole code-rendered video (hype and intro ads, product tours, showreels, narrated explainers): the motion-video skill (ten-step order of work, five method documents with evidence tiers), a director-sheet layer (film.timeline.json validated, resolved to seconds and approved by tools/timeline/tl.py), filmkit (frame-by-frame render, encode, verify, publish; check.py rules FK-R), a review loop (gates G0-G3, at most 3 rounds), an edit route (EDL / OTIO with provenance), 29 measuring instruments that each carry a --selftest with known-true and known-false synthetic inputs, and one worked example film. Tested on Windows 11 and Python 3.12; no API key needed. The gates catch a careless agent, not an evasive one (docs/EVIDENCE.md).
 
 Start at AGENTS.md. Pin a release tag, not main (current: https://github.com/WizerdBaChe/motion-video-kit/tree/v1.0.0, the same tag the README install prompt names). Code MIT, documentation CC BY 4.0.
 
@@ -30,7 +30,7 @@ Start at AGENTS.md. Pin a release tag, not main (current: https://github.com/Wiz
 - [reference-impl/tools/filmkit/](reference-impl/tools/filmkit/): render.py, check.py, transform.py, rules
 - [reference-impl/tools/review/](reference-impl/tools/review/): review loop G0-G3
 - [reference-impl/tools/edit/](reference-impl/tools/edit/): edit route
-- [reference-impl/tools/](reference-impl/tools/): the 27 measuring instruments
+- [reference-impl/tools/](reference-impl/tools/): the measuring instruments (29 with a --selftest)
 - [reference-impl/docs/](reference-impl/docs/): filmkit PSM, timeline-layer design and PSM, production order, edit-route design, agent-review design, text-motion vocabulary
 
 ## Optional

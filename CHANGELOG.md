@@ -18,7 +18,7 @@ First public release.
   the filmkit smoke selftest (45 checks).
 - `tools/review/`: the review loop (gates G0-G3, refusal rules) with a selftest (43 checks).
 - `tools/edit/`: the edit route (EDL / OTIO, asset provenance) with a selftest (16 controls).
-- 27 measuring instruments, each with `--selftest`.
+- 29 measuring instruments with `--selftest` (five helper scripts have none).
 - Worked example film `films/fanout-pool-explainer/` (director sheet, page, bundled fonts).
 - Design and production documents under `reference-impl/docs/`.
 - README (Traditional Chinese and English), `docs/DEVELOPER.md`, `docs/BUILD-SPEC.md`, `docs/EVIDENCE.md`,

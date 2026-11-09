@@ -6,7 +6,7 @@
 ## 實測（v1.0.0）
 
 環境：Windows 11、Python 3.12.7、numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.1、opencv-python-headless 4.12.0.88、pillow 12.3.0、
-playwright 1.62.0、OpenTimelineIO 0.18.1、ffmpeg 在 PATH。以上為 `verify/controls_run.txt` 環境行印出的版本；授權見 `THIRD_PARTY_NOTICES.md`。
+playwright 1.62.0、OpenTimelineIO 0.18.1、ffmpeg 在 PATH。以上為 `verify/controls_run.txt` 第 1、2 行（環境行與 packages 行）印出的版本；授權見 `THIRD_PARTY_NOTICES.md`。
 
 **驗收控制（`verify/controls_run.txt`）：14 列全部 OK。** 每一列都印出「應有值」與「實際值」，突變版必須讓實際值改變：
 
@@ -18,12 +18,12 @@ playwright 1.62.0、OpenTimelineIO 0.18.1、ffmpeg 在 PATH。以上為 `verify/
 | K4 | `tools/timeline/selftest.py`：201 pass, 0 fail；陽性對照 114 | K4-neg：schema 的 `schema_version` const 改為 2：selftest exit 1，`schema agreement` 臂報出 validator `[]` 對 schema `['$.meta.schema_version: const']` 的差異 |
 | K5 | `tools/review/selftest.py`：43 pass, 0 fail；陽性對照 33 | K5-neg：拒絕規則 id INV-R4 在 review.py 全部改名：41 pass, **2 fail**，exit 1 |
 | K6 | `tools/edit/selftest.py`：16/16 controls hold | 內含 |
-| K7 | 27 支量測儀器的 `--selftest`：27 exit 0 | K7-neg：phaselock 的 `lock()` 永遠回「未鎖定」：selftest exit 1（KeyError `mean_phase_ms`） |
+| K7 | 29 支量測儀器的 `--selftest`：29 exit 0 | K7-neg：phaselock 的 `lock()` 永遠回「未鎖定」：selftest exit 1（KeyError `mean_phase_ms`） |
 | K8 | 範例片經 `tl.py validate --static` / `resolve` / `validate --timed`：exit 0 x3，blocking 0 與 0 | K8-neg：`decisions.energy.value` 改成 `frantic`（不在 calm / lively / hype）：exit 2，1 blocking |
 
-`--full` 另跑完整的 filmkit 自我測試（原環境 441 項；乾淨環境下需要作品契約目錄的檢查會回報 skip，所以數字不同，不計入）。
+`--full` 另跑完整的 filmkit 自我測試（原環境 441 項，這個數字沿用原環境紀錄，本 repo 沒有重跑驗證；乾淨環境下需要作品契約目錄的檢查會回報 skip，所以數字不同，不計入）。
 
-**K7 的 27 支儀器各自證明了什麼：** 每支的 `--selftest` 餵入一個已知為真的合成輸入與一個已知為假的合成輸入（例如 phaselock 的合成節拍序列：鎖定與未鎖定），
+**K7 的 29 支儀器各自證明了什麼：** 每支的 `--selftest` 餵入一個已知為真的合成輸入與一個已知為假的合成輸入（例如 phaselock 的合成節拍序列：鎖定與未鎖定），
 要求兩者的判定相反。這證明的是儀器在合成資料上辨得出差別，**不是**它在真實影片上量得準；真實影片上的量測紀錄是原環境的，沒有隨附（見「不宣稱」）。
 
 ## 規則來源（origin records）
@@ -54,8 +54,8 @@ playwright 1.62.0、OpenTimelineIO 0.18.1、ffmpeg 在 PATH。以上為 `verify/
 | 導演表經使用者核准才開始建頁面 | 部分：核准是檔案裡的紀錄（`tl.py approve`），沒有簽章；「沒核准不准建」是流程規則 | `tools/timeline/_tl/approve.py:90`；SKILL.md「Order of work」第 4 步 |
 | 動手前先問使用者用途、受眾、能量；沒人可問時寫 `build/questions.md` | process only | `skills/motion-video/SKILL.md` 步驟 0 |
 | 每支片先定一個受眾、一個基調、一個底色 | process only（導演表只檢查格式，不判斷選得好不好） | `skills/motion-video/references/whole-film-rules.md` §1 |
-| 成品檔先驗證、通過才發佈檔名；失敗時保留前一版並標為過時 | 程式強制（exit 1 = 沒發佈新檔） | `tools/filmkit/render.py:3`、`:55`；`tools/filmkit/_fk/verify.py` |
-| 成品檔的容器、長度、畫面尺寸、像素格式與編碼、音訊在場（FK-R-1 至 5） | 程式強制（FAIL / blocking） | `tools/filmkit/_fk/judge.py:94`–`:101` |
+| 成品檔先驗證、通過才發佈檔名；失敗時保留前一版並標為過時 | 程式強制（exit 1 = 沒發佈新檔） | `tools/filmkit/render.py:55`（結束碼）、`:45`（匯入 `publish`）；`tools/filmkit/_fk/verify.py` |
+| 成品檔的容器、長度、畫面尺寸、像素格式與編碼、音訊在場（FK-R-1 至 5） | 程式強制（FAIL / blocking） | `tools/filmkit/_fk/judge.py:98`–`:109`（FK-R-1 與呼叫處），各檢查在同檔 `_duration` :130、`_geometry` :144、`_codec` :164、`_audio` :183 |
 | 正式片（delivery-web）必須是作品庫開過的項目且掛載未過期（FK-R-18、FK-R-19） | 程式強制（blocking），需要原環境的作品契約目錄，乾淨環境下 skip | `tools/filmkit/selftest.py:2052` 驗證其行為 |
 | 響度只回報事實；對照平台目標要明示規則檔與目標名（FK-R-17） | 程式強制（info）；平台目標數字是規則檔裡有來源與 `review_when` 的主張 | `tools/filmkit_rules.json`；`tools/filmkit_rules_selftest.py` |
 | 片種清單（intro / hype / tour / showreel / explainer / profile reel）與規則檔一致 | 程式強制（rules selftest 比對 `film-types.md`） | `tools/filmkit_rules_selftest.py`；K3 / K3-neg |
@@ -63,9 +63,9 @@ playwright 1.62.0、OpenTimelineIO 0.18.1、ffmpeg 在 PATH。以上為 `verify/
 | 每一關最多 3 輪，之後帶著未結項目放行（INV-R6） | 程式強制（Refused） | `tools/review/review.py:33`、`:350` |
 | 審片者不是製作者；判定首行寫 `reviewer:` | 部分：review.py 寫入判定檔首行，但不驗證真有第二個身分 | `tools/review/review.py:525`；`skills/motion-video/references/build-and-export.md` §3 |
 | 剪輯路線每個素材都帶出處檔，否則拒絕渲染 | 程式強制（`ValueError` / verify 回報缺檔） | `tools/edit/assets.py:66`、`:88` |
-| 每支量測儀器對已知為真與已知為假的合成輸入給出相反的判定 | 程式強制（`--selftest`，K7） | 各 `tools/<name>.py` 的 `--selftest`；例：`tools/phaselock.py:61` |
+| 29 支量測儀器對已知為真與已知為假的合成輸入給出相反的判定（compare、measure_arm、textcompare、make_beat_track、avio 沒有 selftest，不在此列） | 程式強制（`--selftest`，K7） | 各 `tools/<name>.py` 的 `--selftest`；例：`tools/phaselock.py:41`–`:53` |
 | 「段落換在拍子上」「旁白下運動不中斷」「鏡頭有動」等判語要用儀器量成品檔 | process only：SKILL.md 規定用哪支儀器，沒有腳本強迫你跑 | `skills/motion-video/SKILL.md`「Verdicts this skill may give」 |
-| `reference-impl/` 與發佈的位元組一致 | 程式強制（K1，sha256 逐檔） | `verify/run_controls.py:90` |
+| `reference-impl/` 與發佈的位元組一致 | 程式強制（K1，sha256 逐檔） | `verify/run_controls.py:96`–`:100` |
 | 規則的證據等級要如實標示，不把 unvalidated 說成已證明 | process only | `skills/motion-video/references/evidence-and-instruments.md` §Tiers |
 | 器件基調與整片基調衝突時換器件、不換基調 | process only | `skills/motion-video/SKILL.md` 步驟 5 |
 | 影片好不好看、是否抓住眼球 | 不宣稱（沒有儀器；要人看） | — |
@@ -81,4 +81,13 @@ playwright 1.62.0、OpenTimelineIO 0.18.1、ffmpeg 在 PATH。以上為 `verify/
 - 不宣稱完整 filmkit 自我測試在乾淨環境的數字：需要原環境作品契約目錄的檢查（FK-R-18、FK-R-19）在乾淨環境 skip，所以 `--full` 的通過數與原環境的 441 不同。
 - 不宣稱生成素材路線可用：需要本機 ComfyUI 與模型檔；公開版只驗證 mock 轉接器與出處檔的檢查。
 - 不宣稱公開的五支成品影片可由本 repo 完全重現：只有說明動畫的頁面隨附；其餘四支只提供成品。
+- 不宣稱每支腳本都有自我測試：`compare.py`、`measure_arm.py`、`textcompare.py`、`make_beat_track.py`、`avio.py` 沒有 `--selftest`；
+  隨附的 `evidence-and-instruments.md` 開頭寫「每支儀器有 --selftest」是原環境的敘述，以本節與 K7 的 29 支為準。
+- 不宣稱 K7-neg 證明所有儀器：突變版只針對 phaselock 一支，且它是以 `KeyError` 失敗（程式崩潰），不是斷言值改變；其餘 28 支沒有對應的突變版。
+- K6 沒有突變列；`edit/selftest.py` 印出「16/16 controls hold」，需要真實 ComfyUI 伺服器的那一項在沒有伺服器時的處理，紀錄裡沒有獨立的 skip 行。
+- 控制項在 `reference-impl/` 原地執行正向檢查（突變版才用暫存副本），並關閉 bytecode 寫入；`--full` 會在存在時讀取 `~/.claude` 下的作品契約工具，
+  不存在就略過那幾項。乾淨 clone 的紀錄附 `git status` 以證明沒有留下檔案。
+- 導演表的時長：範例片的分鏡標題寫 57.5 s（導演表 `film.end`），渲染命令用 59.5 s（`build_showcase.py` 的 `--duration`，含片尾停留）；兩者的關係是片尾停留 2.0 s 之差，渲染時間以頁面的實際長度為準。
+- 公開的宣傳片動圖內有來源徽章（IG / YT / TH 縮寫與虛構的帳號名），是平台縮寫的示意；不宣稱「完全沒有第三方標示」，只宣稱沒有真人與第三方的標誌圖樣。
+- 方法文件與設計文件提到的外部作品與工具（HyperFrames、lemo-opuscar、Remotion、reelmimic 等）是原環境的先行研究紀錄，其中關於公司或專案的敘述（議題數、授權）是當時的快照，沒有在本次發版重新查證。
 - 影片的音軌在公開版已移除（宣傳片、產品介紹），所以節拍對齊與旁白相關儀器沒有在公開的 MP4 上示範。

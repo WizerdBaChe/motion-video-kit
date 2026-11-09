@@ -4,7 +4,7 @@
 
 **用程式碼做整支影片：先寫一張「導演表」把受眾、基調、分段、轉場、運鏡全部定下來，再逐格算出每個畫面、輸出 MP4，最後用儀器量它有沒有照表做。**
 
-一個 Claude Code skill（motion-video，附五份方法文件）＋ 導演表工具（timeline，驗證、換算時間、核准）＋ 渲染與驗片工具（filmkit）＋ 審片迴圈（review）＋ 剪輯路線（edit）＋ 27 支各自帶自我測試的量測儀器 ＋ 一支完整的範例片。
+一個 Claude Code skill（motion-video，附五份方法文件）＋ 導演表工具（timeline，驗證、換算時間、核准）＋ 渲染與驗片工具（filmkit）＋ 審片迴圈（review）＋ 剪輯路線（edit）＋ 29 支各自帶自我測試的量測儀器 ＋ 一支完整的範例片。
 
 **繁體中文** · [English](README.en.md)
 
@@ -38,12 +38,12 @@
 | **先確認** | 用途、片種、放映處、受眾、唯一要記住的一件事、能量（calm / lively / hype） | skill 規定這些要先問、先寫下來；沒人可問時寫成 `questions.md`，不憑空推定 |
 | **導演表**（核心） | 一份 `film.timeline.json`：每一段的起點、時長、自由度、動機句、關鍵幀 | `tl.py` 驗格式與時間、換算成秒、核准後才動手建頁面 |
 | **建頁面與輸出** | 每一格畫面都是時間的純函式的頁面，用 filmkit 逐格擷取、編碼、驗證，通過才發佈檔名 | `tools/filmkit/check.py` 對成品檔給五行結論與規則列（FK-R） |
-| **量測與審片** | 27 支儀器（節拍對齊、旁白鎖定、鏡頭、運動密度、產品數字真偽…）；四關審片 G0–G3，最多 3 輪 | 每支儀器有 `--selftest`（已知為真、已知為假的合成輸入）；審片迴圈的拒絕規則有自我測試 |
+| **量測與審片** | 29 支帶自我測試的儀器（節拍對齊、旁白鎖定、鏡頭、運動密度、產品數字真偽…）；四關審片 G0–G3，最多 3 輪 | 這 29 支各有 `--selftest`（已知為真、已知為假的合成輸入）；審片迴圈的拒絕規則有自我測試 |
 
 ## 成品看得到什麼
 
 下面每一支都是用這套方法與工具做的完整影片截段，依用途分組。動圖是縮小版；完整 MP4 在 [release 頁面](https://github.com/WizerdBaChe/motion-video-kit/releases/latest)。
-（影片內的畫面文字多為繁體中文；片中的產品與公司是虛構或作者自己的作品；沒有真人，沒有第三方商標。）
+（影片內的畫面文字多為繁體中文；片中的產品與公司是虛構或作者自己的作品；沒有真人。宣傳片畫面內有虛構帳號與平台縮寫（IG / YT / TH）的示意徽章，沒有第三方標誌圖樣。）
 
 <table>
 <tr>
@@ -141,13 +141,13 @@
 
 ### 不裝 agent，自己看一次導演表
 
-需要 Python 3.12 以上，不需要 API 金鑰。把範例片複製到一個資料夾名稱等於它 `film_id` 的地方（資料夾名必須等於 `fanout-pool-explainer`），再跑驗證：
+需要 Python 3.12 以上，不需要 API 金鑰。把整個範例片資料夾複製到別處（資料夾名必須維持 `fanout-pool-explainer`，等於它的 `film_id`），再對那份複製跑驗證：
 
 ```text
 python -X utf8 reference-impl/tools/timeline/tl.py validate --static <複製出來的 fanout-pool-explainer 資料夾>
 ```
 
-會看到 `0 blocking`。再把該資料夾 `film.timeline.json` 裡 `decisions.energy.value` 從 `lively` 改成 `frantic` 再跑一次，會出現 `1 blocking`、結束碼 2（值不在 calm / lively / hype 之內）。改回來即可。
+會看到 `0 blocking`（另有 1 項「要你看」與數項 info，不擋）。再把該資料夾 `film.timeline.json` 裡 `decisions.energy.value` 從 `lively` 改成 `frantic` 再跑一次，會出現 `1 blocking`、結束碼 2（值不在 calm / lively / hype 之內）。改回來即可。
 
 ### 跑完整驗收
 
@@ -183,7 +183,7 @@ flowchart LR
 - **渲染與驗片**：`tools/filmkit/`（`render.py`、`check.py`、`transform.py`、規則檔與 FK-R 規則列；smoke 45 項）。
 - **審片迴圈**：`tools/review/`（G0–G3；43 項自我測試）。
 - **剪輯路線**：`tools/edit/`（EDL / OTIO、素材出處紀錄；16 項控制）。
-- **27 支量測儀器**，各自帶 `--selftest`。
+- **29 支量測儀器**，各自帶 `--selftest`（另有 5 支輔助或比較腳本沒有自我測試，見 [`docs/EVIDENCE.md`](docs/EVIDENCE.md)）。
 - **範例片**：`films/fanout-pool-explainer/`，含導演表、頁面與字型。
 - 驗收腳本 K1–K8，每一項印出正確版與故意弄壞版的兩個值。
 

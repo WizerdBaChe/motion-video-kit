@@ -8,8 +8,8 @@ how to know it does, how to adapt it, and what differs from the origin. Human in
 A method and a toolchain for making a whole video whose every frame is computed by a program. The method is the
 skill `motion-video` (ten steps, five reference documents, evidence-tiered rules). The toolchain is: the
 director-sheet layer (`tools/timeline/`), the renderer and file checker (`tools/filmkit/`), the review loop
-(`tools/review/`), the edit route (`tools/edit/`), and 27 measuring instruments (`tools/*.py`), each with a
-`--selftest`. One worked example film ships (`films/fanout-pool-explainer/`). The core artifact is the director
+(`tools/review/`), the edit route (`tools/edit/`), and 29 measuring instruments (`tools/*.py`), each with a
+`--selftest` (five helper or comparison scripts have none). One worked example film ships (`films/fanout-pool-explainer/`). The core artifact is the director
 sheet `film.timeline.json`: decisions (who decided, on what evidence) plus per-section timing, freedom, motion
 intent and key frames; everything after it is checked against it.
 
@@ -90,7 +90,7 @@ Components communicate through files in the film folder. A command that needs an
 | K4 | `tools/timeline/selftest.py` | exit 0, 0 fail | K4-neg: schema `schema_version` const changed to 2 -> non-zero |
 | K5 | `tools/review/selftest.py` | exit 0, 0 fail | K5-neg: refusal id `INV-R4` renamed everywhere in review.py -> non-zero |
 | K6 | `tools/edit/selftest.py` | exit 0, all controls hold | built in |
-| K7 | 27 instrument `--selftest` | 27 exit 0 | K7-neg: phaselock `lock()` always answers not-locked -> non-zero |
+| K7 | 29 instrument `--selftest` | 29 exit 0 | K7-neg: phaselock `lock()` always answers not-locked -> non-zero |
 | K8 | worked example through `tl.py validate --static`, `resolve`, `validate --timed` | exit 0 x3, 0 blocking | K8-neg: `decisions.energy.value` set to `frantic` -> exit 2, 1 blocking |
 
 Recorded run: `verify/controls_run.txt`. Fresh-clone runs (empty HOME, USERPROFILE and CLAUDE_CONFIG_DIR; once more with
@@ -126,10 +126,11 @@ applied with an expected hit count; a count that does not match stops the build.
 | `<arms-root>` | the folder of imitation experiment rounds | 1 |
 | `<arms>/` | a drive folder of experiment arms | 3 |
 
-**Neutral wording (regex rules, counts pinned):** a book-project name (5 occurrences) -> "a book project"; two
-other private project names (3 occurrences each) -> neutral descriptions.
+**Neutral wording (regex rules, counts pinned):** a book-project name (5 occurrences) -> "a book project"; the
+upper-case identifier derived from that name in one selftest (4 occurrences) -> `BOOK_V1`; two other private
+project names (3 occurrences each) -> neutral descriptions.
 
-**Declared edits (single anchors, count 1 each):**
+**Declared edits (single anchors, count 1 each; E1 to E7):**
 
 | id | file | what changed |
 |---|---|---|
@@ -138,6 +139,7 @@ other private project names (3 occurrences each) -> neutral descriptions.
 | E3 | `tools/edit/README.md` | a local ComfyUI install folder -> a placeholder |
 | E4 | `docs/axes-and-pairing.md` | a third-party creator's handle and the path of its analysis -> a neutral description (an external case, not shipped) |
 | E5 | `docs/agent-review-kbt-design.md` | a provenance cell naming a private research project -> "a research project"; the date is kept |
+| E7 | `tools/shotstats.py` | a docstring example naming an episode of a third-party series -> "one measured episode" (the numbers are kept) |
 | E6 | `tools/timeline/selftest.py` | the control that expects a 40-hex commit id in a stamp is conditioned on a git checkout, so it holds in a plain source archive |
 
 **Derived file:** `films/fanout-pool-explainer/assets/research.md` is generated from the `research:` claim texts of the

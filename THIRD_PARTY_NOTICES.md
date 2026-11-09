@@ -8,8 +8,8 @@ installed package metadata on the machine that produced `verify/controls_run.txt
 
 | file | what | licence | where the licence text is |
 |---|---|---|---|
-| `reference-impl/films/fanout-pool-explainer/page/fonts/NotoSansTC-VF-subset.woff2` | Noto Sans TC (variable, subset) | SIL Open Font License 1.1 | `.../page/fonts/LICENSE-OFL-NotoSansTC.txt` |
-| `reference-impl/films/fanout-pool-explainer/page/fonts/IBMPlexMono-500-latin.woff2`, `IBMPlexMono-600-latin.woff2` | IBM Plex Mono (latin subset) | SIL Open Font License 1.1 | `.../page/fonts/LICENSE-OFL-IBMPlexMono.txt` |
+| `reference-impl/films/fanout-pool-explainer/page/fonts/NotoSansTC-VF-subset.woff2` | Noto Sans TC (variable, subset) | SIL Open Font License 1.1 | `reference-impl/films/fanout-pool-explainer/page/fonts/LICENSE-OFL-NotoSansTC.txt` |
+| `reference-impl/films/fanout-pool-explainer/page/fonts/IBMPlexMono-500-latin.woff2`, `IBMPlexMono-600-latin.woff2` | IBM Plex Mono (latin subset, i.e. a modified version; the OFL permits modification and redistribution under the same licence) | SIL Open Font License 1.1 | `reference-impl/films/fanout-pool-explainer/page/fonts/LICENSE-OFL-IBMPlexMono.txt` |
 
 Both fonts are embedded by the example page with `@font-face`, so the render does not depend on fonts
 installed on the exporting machine.
@@ -22,7 +22,7 @@ from its project and check its licence yourself.
 
 | library | version used at the origin | licence |
 |---|---|---|
-| GSAP | 3.15.0 | GreenSock Standard "no charge" License (not an OSI licence; read its terms before commercial use) |
+| GSAP | 3.15.0 | GSAP's own "Standard" licence (free of charge since the project's move to Webflow; not an OSI licence; the origin's design notes call it Webflow's free licence; read its current text before use) |
 | three.js | 0.170.0 and 0.186.1 | MIT |
 | glTF Transform | 4.5.1 | MIT |
 | glTF Validator | 2.0.0-dev.3.10 | Apache-2.0 |
@@ -32,9 +32,17 @@ from its project and check its licence yourself.
 - `reference-impl/tools/shotstats.py`: the hard-cut detector re-implements, in numpy and OpenCV, the published
   method of PySceneDetect's AdaptiveDetector (a content score from HSV frame differences, compared with the
   average of the neighbouring frames). No PySceneDetect source is included and `scenedetect` is not a dependency.
-  PySceneDetect is BSD-3-Clause; the file states the one change made to the method (hue compared only where
+  PySceneDetect is BSD-3-Clause (version or commit not recorded, because no code was taken); the file states the one change made to the method (hue compared only where
   both pixels are saturated). The colour-barcode idea is credited in the file's docstring to the tool
   CadensView; no code of it is used.
+- `reference-impl/docs/timeline-layer-design.md` (and the PSM beside it) record prior-art surveys of existing
+  video-from-code tools. Ideas taken as concepts only, with no code or text copied: HyperFrames (Apache-2.0
+  according to the survey) for registry fields such as `license` / `requires` and the idea that clips tile a film
+  without gaps; lemo-opuscar (MIT according to the survey) for a reading-time rule of thumb behind rule TV-6;
+  reelmimic is named in `tools/camflow.py` only as a zoom threshold that this kit did NOT adopt (its own is
+  calibrated). Remotion is surveyed and not used. The surveys state
+  facts about those projects (licences, open-issue counts) as of the date written; they were not re-checked at
+  release, and the licence was not checked at a specific borrowed commit because nothing was copied.
 - `reference-impl/tools/filmkit_rules.json`: the loudness target values cite the published EBU R128
   recommendation and platform documents as sources, each with a `review_when` line; they are numbers, not copied text.
 

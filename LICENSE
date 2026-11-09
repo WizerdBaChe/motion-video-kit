@@ -1,7 +1,8 @@
 This repository is dual-licensed by content type.
 
-- Code — every `.py` file and JSON schema, the hook and policy files, and the program code of the
-  acceptance controls — is licensed under the MIT License below.
+- Code — every `.py`, `.mjs` and `.ps1` file, the JSON schemas, rule files and example JSON data, the HTML
+  page of the worked example film, and the program code of the acceptance controls — is licensed under the MIT
+  License below.
 - Documentation and other content — Markdown files (skills, references, rules, specs, records), the
   fictional test fixtures and images — is licensed under the Creative
   Commons Attribution 4.0 International License (CC BY 4.0); see `LICENSE-DOCS`.

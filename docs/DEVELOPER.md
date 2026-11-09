@@ -31,7 +31,7 @@ motion-video-kit/
    │  ├── review/                  review.py、selftest
    │  ├── edit/                    edit.py、edl.py、assets.py、adapters.py、comfy/
    │  ├── filmkit_rules.json · filmkit_rules_selftest.py
-   │  └── <27 支量測儀器>.py        avsync beatgrid bgswitch blurdip camflow …（各有 --selftest）
+   │  └── <量測儀器>.py              avsync beatgrid bgswitch blurdip camflow …（29 支有 --selftest）
    ├── docs/                       設計與製作文件（filmkit-psm、timeline-layer-*、edit-route-design …）
    └── films/fanout-pool-explainer/ 範例片：film.timeline.json、assets/、page/（含字型）
 ```
@@ -50,7 +50,7 @@ flowchart TB
     FK[filmkit<br>render check transform]
     RV[review<br>G0 到 G3]
     ED[edit<br>EDL OTIO 出處]
-    IN[27 支量測儀器]
+    IN[量測儀器 29 支有 selftest]
   end
   S -->|步驟 4| TL
   S -->|步驟 7| FK
@@ -142,7 +142,7 @@ python -X utf8 verify/run_controls.py --write-sums   # reference-impl/ 有變時
 - **導演表是唯一的合約。** 後面的量測與審片都對它，不對口頭約定；格式不合的值在導演表階段就擋下，不留到渲染之後。
 - **每一格是時間的純函式（`window.__setTime(t)`），不用計時器與 CSS transition。** 這讓逐格擷取可重現，也讓同一頁面能在任何時間點被截圖做關鍵幀比對。
 - **渲染器先驗證、後發佈檔名。** 失敗時保留前一版並標為過時，不會把壞檔當成品。
-- **每支儀器自帶合成的已知真假輸入。** 儀器的結論是否可信，先看它的 `--selftest` 能不能辨出已知為假的輸入。
+- **有 `--selftest` 的儀器自帶合成的已知真假輸入。** 儀器的結論是否可信，先看它的 `--selftest` 能不能辨出已知為假的輸入；沒有 selftest 的腳本（`compare.py`、`measure_arm.py`、`textcompare.py`、`make_beat_track.py`、`avio.py`）的輸出不享有這層保證。
 - **審片的擋片依據只有四類。** 品味類的意見只能是「打磨」，不能擋；避免審片迴圈無限拉長（最多 3 輪）。
 - **`reference-impl/` 是位元組副本。** 不手改；改動走宣告的修改清單與重新產生。
 

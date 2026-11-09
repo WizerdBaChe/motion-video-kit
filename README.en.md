@@ -4,7 +4,7 @@
 
 **Make a whole video with code: write one director sheet that fixes the audience, tone, sections, transitions and camera first, then compute every frame, export an MP4, and measure whether the film followed the sheet.**
 
-A Claude Code skill (motion-video, with five method documents) + the director-sheet tool (timeline: validate, resolve times, approve) + render-and-check tools (filmkit) + a review loop (review) + an edit route (edit) + 27 measuring instruments that each carry a self-test + one complete worked example film.
+A Claude Code skill (motion-video, with five method documents) + the director-sheet tool (timeline: validate, resolve times, approve) + render-and-check tools (filmkit) + a review loop (review) + an edit route (edit) + 29 measuring instruments that each carry a self-test + one complete worked example film.
 
 [繁體中文](README.md) · **English**
 
@@ -38,11 +38,11 @@ This kit separates thinking from making and leaves a checkable record at every s
 | **Confirm first** | purpose, film type, where it plays, audience, the one thing to remember, energy (calm / lively / hype) | the skill requires these to be asked and written first; with nobody to ask they go to `questions.md`, never guessed |
 | **Director sheet** (the core) | one `film.timeline.json`: per section start, duration, freedom, motion intent, key frames | `tl.py` validates format and timing, resolves to seconds, and a sheet is approved before any page is built |
 | **Build and export** | a page whose every frame is a pure function of time; filmkit captures frame by frame, encodes, verifies, and publishes the file name only if it passes | `tools/filmkit/check.py` gives a five-line verdict and rule rows (FK-R) on the file |
-| **Measure and review** | 27 instruments (beat alignment, narration lock, camera, motion density, product-claim truth...); four review gates G0-G3, at most 3 rounds | every instrument has `--selftest` (synthetic known-true and known-false inputs); the review loop's refusal rules have self-tests |
+| **Measure and review** | 29 instruments with a self-test (beat alignment, narration lock, camera, motion density, product-claim truth...); four review gates G0-G3, at most 3 rounds | each of these 29 has `--selftest` (synthetic known-true and known-false inputs); the review loop's refusal rules have self-tests |
 
 ## What it makes
 
-Each clip below is an excerpt of a complete film made with this method and these tools, grouped by use. The animations are reduced; full MP4s are on the [release page](https://github.com/WizerdBaChe/motion-video-kit/releases/latest). (On-screen text is mostly Traditional Chinese; products and companies in the films are fictional or the author's own work; no real people, no third-party trademarks.)
+Each clip below is an excerpt of a complete film made with this method and these tools, grouped by use. The animations are reduced; full MP4s are on the [release page](https://github.com/WizerdBaChe/motion-video-kit/releases/latest). (On-screen text is mostly Traditional Chinese; products and companies in the films are fictional or the author's own work; no real people. The hype ad shows illustrative badges with fictional account names and platform abbreviations (IG / YT / TH), and no third-party logos.)
 
 <table>
 <tr>
@@ -140,13 +140,13 @@ Do not change the verdict of any check; report any mismatch to me.
 
 ### Without an agent: look at a director sheet yourself
 
-Python 3.12 or newer; no API key. Copy the example film into a folder whose name equals its `film_id` (it must be `fanout-pool-explainer`) and validate it:
+Python 3.12 or newer; no API key. Copy the whole example film folder somewhere else (the folder name must stay `fanout-pool-explainer`, equal to its `film_id`) and validate the copy:
 
 ```text
 python -X utf8 reference-impl/tools/timeline/tl.py validate --static <your copy of the fanout-pool-explainer folder>
 ```
 
-You see `0 blocking`. Now change `decisions.energy.value` in that copy's `film.timeline.json` from `lively` to `frantic` and run it again: `1 blocking`, exit code 2 (the value is outside calm / lively / hype). Change it back.
+You see `0 blocking` (plus 1 "need a look" row and a few info rows, none blocking). Now change `decisions.energy.value` in that copy's `film.timeline.json` from `lively` to `frantic` and run it again: `1 blocking`, exit code 2 (the value is outside calm / lively / hype). Change it back.
 
 ### Run the full acceptance
 
@@ -182,7 +182,7 @@ First public release:
 - **Render and check:** `tools/filmkit/` (`render.py`, `check.py`, `transform.py`, the rules file and FK-R rows; 45 smoke checks).
 - **Review loop:** `tools/review/` (G0-G3; 43 self-test checks).
 - **Edit route:** `tools/edit/` (EDL / OTIO, asset provenance; 16 controls).
-- **27 measuring instruments**, each with `--selftest`.
+- **29 measuring instruments**, each with `--selftest` (five more helper or comparison scripts have none; see [`docs/EVIDENCE.md`](docs/EVIDENCE.md)).
 - **Worked example:** `films/fanout-pool-explainer/` with its director sheet, page and fonts.
 - Acceptance script K1-K8; each row prints the correct value and the deliberately-broken value.
 

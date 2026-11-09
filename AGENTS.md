@@ -7,13 +7,13 @@
   `tools/timeline/` (the director sheet `film.timeline.json`: validate, resolve times, approve, view page),
   `tools/filmkit/` (frame-by-frame render, encode, verify, publish; `check.py` rules FK-R),
   `tools/review/` (review gates G0-G3, at most 3 rounds), `tools/edit/` (edit route: EDL / OTIO with asset
-  provenance), 27 measuring instruments under `tools/` each with `--selftest`, one worked example film
+  provenance), 29 measuring instruments under `tools/` each with `--selftest` (five more helper scripts have none), one worked example film
   (`films/fanout-pool-explainer/`), and the design documents behind them. Index: `llms.txt`.
 - **Not a library you import.** The tools are command-line scripts laid out like the origin's `~/.claude`
   (skill) plus a lab folder (tools, docs, example); `reference-impl/` is the byte copy of that.
 - **What is enforced by code and what is only a workflow rule:** `docs/EVIDENCE.md` "Enforcement map".
-  Director-sheet format and timing, output-file checks, selftests of every instrument and refusal rules of the
-  review loop are code; asking the user first, choosing a film type, taste, and whether a film is good are
+  Director-sheet format and timing, output-file checks, the selftests of the 29 instruments and refusal rules of
+  the review loop are code; asking the user first, choosing a film type, taste, and whether a film is good are
   process rules the agent follows from SKILL.md text.
 - **Evidence tiers:** each rule in the method documents is tagged user / measured / verified / unvalidated
   (`reference-impl/skills/motion-video/references/evidence-and-instruments.md`). An unvalidated rule is a
@@ -24,12 +24,14 @@
 - **Dependencies, no API key:** Python 3.12, numpy, scipy, matplotlib, opencv-python-headless, pillow,
   playwright (with Chromium), OpenTimelineIO, ffmpeg on PATH (`verify/requirements.txt`,
   `THIRD_PARTY_NOTICES.md`). No API key is needed by any shipped tool. The edit route's generated-image path
-  needs a local ComfyUI; without it that one test reports skip.
+  needs a local ComfyUI; without it that one control skips (the edit selftest prints its controls without a
+  separate skip line, see `docs/EVIDENCE.md` "Not claimed").
 - **What was run:** Windows 11, Python 3.12.7. The recorded result is `verify/controls_run.txt`; a fresh-clone
   run under an empty home and the runs with an optional dependency blocked are `verify/fresh_clone_run.txt`.
   What was not run or not claimed is in `docs/EVIDENCE.md`.
 - **Network and side effects:** the controls make no network calls. They copy `reference-impl/` into a scratch
-  folder, mutate the copy and delete it; they do not write inside `reference-impl/`. Rendering a film launches
+  folder, mutate the copy and delete it; the positive runs execute inside `reference-impl/` with bytecode
+  writing off, so `git status` stays clean afterwards. Rendering a film launches
   Chromium on a local page and writes into the page's own folder.
 - **Not shipped:** case library and external-video analyses, imitation outputs, vendored library tarballs,
   the origin's works folder. Cited but unshipped paths: `verify/unshipped_paths.txt`.

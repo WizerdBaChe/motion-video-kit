@@ -10,8 +10,6 @@
 #   other               a bare name or a relative fragment cited in a document; no file of that name ships
 # Shipped files that cite these paths keep the citation as provenance only.
 
-.../page/fonts/LICENSE-OFL-IBMPlexMono.txt	runtime-output
-.../page/fonts/LICENSE-OFL-NotoSansTC.txt	runtime-output
 ../experiments/r28-w43-textname/REPORT.md	other
 ../inputs/design-axes.md	runtime-output
 .filmkit/lock.json	origin-lab
@@ -109,6 +107,7 @@ docs/verification_timeline-layer-design-v4.1_2026-10-09.md	origin-lab
 docs/verification_timeline-layer-psm-v1_2026-10-10.md	origin-lab
 docs/video-design.md	origin-lab
 docs/workflow.md	origin-lab
+edit/selftest.py	other
 edl.json	other
 events.json	other
 experiments/probe-inter-shot-relation-2026-11-03/REPORT.md	origin-lab
