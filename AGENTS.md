@@ -23,7 +23,9 @@
   a selftest can be edited together with the code it tests. Details: `docs/EVIDENCE.md` "Not claimed".
 - **Dependencies, no API key:** Python 3.12, numpy, scipy, matplotlib, opencv-python-headless, pillow,
   playwright (with Chromium), OpenTimelineIO, ffmpeg on PATH (`verify/requirements.txt`,
-  `THIRD_PARTY_NOTICES.md`). No API key is needed by any shipped tool. The edit route's generated-image path
+  `THIRD_PARTY_NOTICES.md`). Blocking each one in turn (`verify/fresh_clone_run.txt`): without matplotlib all 14
+  control rows still pass; without scipy the `cutdrivers` and `springfit` selftests fail (K7); without
+  OpenTimelineIO the edit-route selftest fails (K6). No API key is needed by any shipped tool. The edit route's generated-image path
   needs a local ComfyUI; without it that one control skips (the edit selftest prints its controls without a
   separate skip line, see `docs/EVIDENCE.md` "Not claimed").
 - **What was run:** Windows 11, Python 3.12.7. The recorded result is `verify/controls_run.txt`; a fresh-clone

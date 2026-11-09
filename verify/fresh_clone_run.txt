@@ -1,0 +1,322 @@
+fresh clone at e2b1d8f; HOME, USERPROFILE and CLAUDE_CONFIG_DIR point at a new empty folder
+
+=== optional dependency blocked: none ===
+motion-video-kit controls: python 3.12.7, kit reference-impl/ (Windows 11)
+packages: numpy 2.5.2, scipy 1.18.0, matplotlib 3.11.1, opencv-python-headless 4.12.0.88, pillow 12.3.0, playwright 1.62.0, OpenTimelineIO 0.18.1; ffmpeg on PATH: yes
+
+OK   K1 reference-impl bytes equal the recorded sums
+       expected: 141 files, 0 differ
+       got     : 141 files, 0 differ
+OK   K1-neg one appended byte in a temp copy is detected
+       expected: 1 file differs
+       got     : 1 file(s) differ
+OK   K2 filmkit selftest --smoke
+       expected: exit 0, 0 fail
+       got     : exit 0; selftest: 45 pass, 0 fail, 0 skipped; positive arms fired: 23 (2 s)
+OK   K3 filmkit_rules_selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; filmkit_rules_selftest: 43 pass, 0 fail, 0 skipped; positive arms fired: 27 (13 s)
+OK   K3-neg rules file without the hype-ad film type
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; filmkit_rules_selftest: 42 pass, 1 fail, 0 skipped; positive arms fired: 27
+OK   K4 timeline selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; timeline selftest: 201 pass, 0 fail, 0 skipped; positive arms fired: 114 (20.1 s) (20 s)
+OK   K4-neg schema_version const changed to 2
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; FAIL schema agreement valid: product_state + shows_state + required [negative] FIRED: validator []; schema ['$.meta.schema_version: const']
+OK   K5 review selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; review selftest: 43 pass, 0 fail; positive arms fired: 33 (74 s)
+OK   K5-neg refusal id INV-R4 renamed everywhere in review.py
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; review selftest: 41 pass, 2 fail; positive arms fired: 31
+OK   K6 edit selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; 16/16 controls hold (11 s)
+OK   K7 29 instrument selftests (known-true and known-false synthetic inputs)
+       expected: 29 exit 0
+       got     : 29 exit 0, 0 non-zero []
+       - avsync: exit 0: SELFTEST PASS
+       - beatgrid: exit 0: SELFTEST PASS
+       - bgswitch: exit 0: SELFTEST PASS
+       - blurdip: exit 0: SELFTEST PASS
+       - camflow: exit 0: SELFTEST PASS
+       - cutdrivers: exit 0: SELFTEST PASS
+       - density: exit 0: SELFTEST PASS
+       - domlayers: exit 0: SELFTEST PASS
+       - fidelity: exit 0: SELFTEST PASS
+       - flashwash: exit 0: SELFTEST PASS
+       - framebox: exit 0: SELFTEST PASS
+       - guidechar: exit 0: SELFTEST PASS
+       - measure_narrated: exit 0: SELFTEST PASS
+       - measure_product: exit 0: SELFTEST PASS
+       - measure_showreel: exit 0: SELFTEST PASS
+       - narrlock: exit 0: SELFTEST PASS
+       - phaselock: exit 0: SELFTEST PASS
+       - runsim: exit 0: SELFTEST PASS
+       - segments: exit 0: SELFTEST PASS
+       - segsim: exit 0: SELFTEST PASS
+       - preview: exit 0: ok  no plan -> duration 0 (page meta or on-screen error)
+       - screenlines: exit 0: SELFTEST PASS
+       - shapematch: exit 0: SELFTEST PASS
+       - sheets: exit 0: SELFTEST PASS
+       - shotstats: exit 0: selftest PASS
+       - springfit: exit 0: SELFTEST PASS
+       - subframe_render: exit 0: SELFTEST PASS
+       - swapgrey: exit 0: SELFTEST PASS
+       - variance: exit 0: variance selftest PASS
+OK   K7-neg phaselock selftest on a copy whose lock() always answers 'not locked'
+       expected: non-zero exit
+       got     : exit 1; KeyError: 'mean_phase_ms'
+OK   K8 worked example through tl.py validate --static / resolve / validate --timed
+       expected: exit 0 x3, 0 blocking rows
+       got     : exit [0, 0, 0], blocking ['0', '?', '0']
+OK   K8-neg the same example with the energy decision set outside its enum
+       expected: exit 2 (blocking row)
+       got     : exit 2; 1 blocking
+
+14 of 14 control rows OK
+exit 0
+git status --short after the run: (clean: the controls left nothing behind)
+
+=== optional dependency blocked: matplotlib ===
+motion-video-kit controls: python 3.12.7, kit reference-impl/ (Windows 11)
+packages: numpy 2.5.2, scipy 1.18.0, matplotlib 3.11.1, opencv-python-headless 4.12.0.88, pillow 12.3.0, playwright 1.62.0, OpenTimelineIO 0.18.1; ffmpeg on PATH: yes
+
+OK   K1 reference-impl bytes equal the recorded sums
+       expected: 141 files, 0 differ
+       got     : 141 files, 0 differ
+OK   K1-neg one appended byte in a temp copy is detected
+       expected: 1 file differs
+       got     : 1 file(s) differ
+OK   K2 filmkit selftest --smoke
+       expected: exit 0, 0 fail
+       got     : exit 0; selftest: 45 pass, 0 fail, 0 skipped; positive arms fired: 23 (2 s)
+OK   K3 filmkit_rules_selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; filmkit_rules_selftest: 43 pass, 0 fail, 0 skipped; positive arms fired: 27 (13 s)
+OK   K3-neg rules file without the hype-ad film type
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; filmkit_rules_selftest: 42 pass, 1 fail, 0 skipped; positive arms fired: 27
+OK   K4 timeline selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; timeline selftest: 201 pass, 0 fail, 0 skipped; positive arms fired: 114 (24.3 s) (25 s)
+OK   K4-neg schema_version const changed to 2
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; FAIL schema agreement valid: product_state + shows_state + required [negative] FIRED: validator []; schema ['$.meta.schema_version: const']
+OK   K5 review selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; review selftest: 43 pass, 0 fail; positive arms fired: 33 (73 s)
+OK   K5-neg refusal id INV-R4 renamed everywhere in review.py
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; review selftest: 41 pass, 2 fail; positive arms fired: 31
+OK   K6 edit selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; 16/16 controls hold (11 s)
+OK   K7 29 instrument selftests (known-true and known-false synthetic inputs)
+       expected: 29 exit 0
+       got     : 29 exit 0, 0 non-zero []
+       - avsync: exit 0: SELFTEST PASS
+       - beatgrid: exit 0: SELFTEST PASS
+       - bgswitch: exit 0: SELFTEST PASS
+       - blurdip: exit 0: SELFTEST PASS
+       - camflow: exit 0: SELFTEST PASS
+       - cutdrivers: exit 0: SELFTEST PASS
+       - density: exit 0: SELFTEST PASS
+       - domlayers: exit 0: SELFTEST PASS
+       - fidelity: exit 0: SELFTEST PASS
+       - flashwash: exit 0: SELFTEST PASS
+       - framebox: exit 0: SELFTEST PASS
+       - guidechar: exit 0: SELFTEST PASS
+       - measure_narrated: exit 0: SELFTEST PASS
+       - measure_product: exit 0: SELFTEST PASS
+       - measure_showreel: exit 0: SELFTEST PASS
+       - narrlock: exit 0: SELFTEST PASS
+       - phaselock: exit 0: SELFTEST PASS
+       - runsim: exit 0: SELFTEST PASS
+       - segments: exit 0: SELFTEST PASS
+       - segsim: exit 0: SELFTEST PASS
+       - preview: exit 0: ok  no plan -> duration 0 (page meta or on-screen error)
+       - screenlines: exit 0: SELFTEST PASS
+       - shapematch: exit 0: SELFTEST PASS
+       - sheets: exit 0: SELFTEST PASS
+       - shotstats: exit 0: selftest PASS
+       - springfit: exit 0: SELFTEST PASS
+       - subframe_render: exit 0: SELFTEST PASS
+       - swapgrey: exit 0: SELFTEST PASS
+       - variance: exit 0: variance selftest PASS
+OK   K7-neg phaselock selftest on a copy whose lock() always answers 'not locked'
+       expected: non-zero exit
+       got     : exit 1; KeyError: 'mean_phase_ms'
+OK   K8 worked example through tl.py validate --static / resolve / validate --timed
+       expected: exit 0 x3, 0 blocking rows
+       got     : exit [0, 0, 0], blocking ['0', '?', '0']
+OK   K8-neg the same example with the energy decision set outside its enum
+       expected: exit 2 (blocking row)
+       got     : exit 2; 1 blocking
+
+14 of 14 control rows OK
+exit 0
+git status --short after the run: (clean: the controls left nothing behind)
+
+=== optional dependency blocked: scipy ===
+motion-video-kit controls: python 3.12.7, kit reference-impl/ (Windows 11)
+packages: numpy 2.5.2, scipy 1.18.0, matplotlib 3.11.1, opencv-python-headless 4.12.0.88, pillow 12.3.0, playwright 1.62.0, OpenTimelineIO 0.18.1; ffmpeg on PATH: yes
+
+OK   K1 reference-impl bytes equal the recorded sums
+       expected: 141 files, 0 differ
+       got     : 141 files, 0 differ
+OK   K1-neg one appended byte in a temp copy is detected
+       expected: 1 file differs
+       got     : 1 file(s) differ
+OK   K2 filmkit selftest --smoke
+       expected: exit 0, 0 fail
+       got     : exit 0; selftest: 45 pass, 0 fail, 0 skipped; positive arms fired: 23 (2 s)
+OK   K3 filmkit_rules_selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; filmkit_rules_selftest: 43 pass, 0 fail, 0 skipped; positive arms fired: 27 (13 s)
+OK   K3-neg rules file without the hype-ad film type
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; filmkit_rules_selftest: 42 pass, 1 fail, 0 skipped; positive arms fired: 27
+OK   K4 timeline selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; timeline selftest: 201 pass, 0 fail, 0 skipped; positive arms fired: 114 (21.7 s) (22 s)
+OK   K4-neg schema_version const changed to 2
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; FAIL schema agreement valid: product_state + shows_state + required [negative] FIRED: validator []; schema ['$.meta.schema_version: const']
+OK   K5 review selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; review selftest: 43 pass, 0 fail; positive arms fired: 33 (77 s)
+OK   K5-neg refusal id INV-R4 renamed everywhere in review.py
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; review selftest: 41 pass, 2 fail; positive arms fired: 31
+OK   K6 edit selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; 16/16 controls hold (11 s)
+FAIL K7 29 instrument selftests (known-true and known-false synthetic inputs)
+       expected: 29 exit 0
+       got     : 27 exit 0, 2 non-zero ['cutdrivers', 'springfit']
+       - avsync: exit 0: SELFTEST PASS
+       - beatgrid: exit 0: SELFTEST PASS
+       - bgswitch: exit 0: SELFTEST PASS
+       - blurdip: exit 0: SELFTEST PASS
+       - camflow: exit 0: SELFTEST PASS
+       - cutdrivers: exit 1: (no matching line)
+       - density: exit 0: SELFTEST PASS
+       - domlayers: exit 0: SELFTEST PASS
+       - fidelity: exit 0: SELFTEST PASS
+       - flashwash: exit 0: SELFTEST PASS
+       - framebox: exit 0: SELFTEST PASS
+       - guidechar: exit 0: SELFTEST PASS
+       - measure_narrated: exit 0: SELFTEST PASS
+       - measure_product: exit 0: SELFTEST PASS
+       - measure_showreel: exit 0: SELFTEST PASS
+       - narrlock: exit 0: SELFTEST PASS
+       - phaselock: exit 0: SELFTEST PASS
+       - runsim: exit 0: SELFTEST PASS
+       - segments: exit 0: SELFTEST PASS
+       - segsim: exit 0: SELFTEST PASS
+       - preview: exit 0: ok  no plan -> duration 0 (page meta or on-screen error)
+       - screenlines: exit 0: SELFTEST PASS
+       - shapematch: exit 0: SELFTEST PASS
+       - sheets: exit 0: SELFTEST PASS
+       - shotstats: exit 0: selftest PASS
+       - springfit: exit 1: (no matching line)
+       - subframe_render: exit 0: SELFTEST PASS
+       - swapgrey: exit 0: SELFTEST PASS
+       - variance: exit 0: variance selftest PASS
+OK   K7-neg phaselock selftest on a copy whose lock() always answers 'not locked'
+       expected: non-zero exit
+       got     : exit 1; KeyError: 'mean_phase_ms'
+OK   K8 worked example through tl.py validate --static / resolve / validate --timed
+       expected: exit 0 x3, 0 blocking rows
+       got     : exit [0, 0, 0], blocking ['0', '?', '0']
+OK   K8-neg the same example with the energy decision set outside its enum
+       expected: exit 2 (blocking row)
+       got     : exit 2; 1 blocking
+
+13 of 14 control rows OK; FAILED: ['K7']
+exit 1
+git status --short after the run: (clean: the controls left nothing behind)
+
+=== optional dependency blocked: OpenTimelineIO ===
+motion-video-kit controls: python 3.12.7, kit reference-impl/ (Windows 11)
+packages: numpy 2.5.2, scipy 1.18.0, matplotlib 3.11.1, opencv-python-headless 4.12.0.88, pillow 12.3.0, playwright 1.62.0, OpenTimelineIO 0.18.1; ffmpeg on PATH: yes
+
+OK   K1 reference-impl bytes equal the recorded sums
+       expected: 141 files, 0 differ
+       got     : 141 files, 0 differ
+OK   K1-neg one appended byte in a temp copy is detected
+       expected: 1 file differs
+       got     : 1 file(s) differ
+OK   K2 filmkit selftest --smoke
+       expected: exit 0, 0 fail
+       got     : exit 0; selftest: 45 pass, 0 fail, 0 skipped; positive arms fired: 23 (2 s)
+OK   K3 filmkit_rules_selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; filmkit_rules_selftest: 43 pass, 0 fail, 0 skipped; positive arms fired: 27 (16 s)
+OK   K3-neg rules file without the hype-ad film type
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; filmkit_rules_selftest: 42 pass, 1 fail, 0 skipped; positive arms fired: 27
+OK   K4 timeline selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; timeline selftest: 201 pass, 0 fail, 0 skipped; positive arms fired: 114 (22.0 s) (22 s)
+OK   K4-neg schema_version const changed to 2
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; FAIL schema agreement valid: product_state + shows_state + required [negative] FIRED: validator []; schema ['$.meta.schema_version: const']
+OK   K5 review selftest
+       expected: exit 0, 0 fail
+       got     : exit 0; review selftest: 43 pass, 0 fail; positive arms fired: 33 (79 s)
+OK   K5-neg refusal id INV-R4 renamed everywhere in review.py
+       expected: non-zero exit (the selftest must notice)
+       got     : exit 1; review selftest: 41 pass, 2 fail; positive arms fired: 31
+FAIL K6 edit selftest
+       expected: exit 0, 0 fail
+       got     : exit 1; (no matching line) (0 s)
+OK   K7 29 instrument selftests (known-true and known-false synthetic inputs)
+       expected: 29 exit 0
+       got     : 29 exit 0, 0 non-zero []
+       - avsync: exit 0: SELFTEST PASS
+       - beatgrid: exit 0: SELFTEST PASS
+       - bgswitch: exit 0: SELFTEST PASS
+       - blurdip: exit 0: SELFTEST PASS
+       - camflow: exit 0: SELFTEST PASS
+       - cutdrivers: exit 0: SELFTEST PASS
+       - density: exit 0: SELFTEST PASS
+       - domlayers: exit 0: SELFTEST PASS
+       - fidelity: exit 0: SELFTEST PASS
+       - flashwash: exit 0: SELFTEST PASS
+       - framebox: exit 0: SELFTEST PASS
+       - guidechar: exit 0: SELFTEST PASS
+       - measure_narrated: exit 0: SELFTEST PASS
+       - measure_product: exit 0: SELFTEST PASS
+       - measure_showreel: exit 0: SELFTEST PASS
+       - narrlock: exit 0: SELFTEST PASS
+       - phaselock: exit 0: SELFTEST PASS
+       - runsim: exit 0: SELFTEST PASS
+       - segments: exit 0: SELFTEST PASS
+       - segsim: exit 0: SELFTEST PASS
+       - preview: exit 0: ok  no plan -> duration 0 (page meta or on-screen error)
+       - screenlines: exit 0: SELFTEST PASS
+       - shapematch: exit 0: SELFTEST PASS
+       - sheets: exit 0: SELFTEST PASS
+       - shotstats: exit 0: selftest PASS
+       - springfit: exit 0: SELFTEST PASS
+       - subframe_render: exit 0: SELFTEST PASS
+       - swapgrey: exit 0: SELFTEST PASS
+       - variance: exit 0: variance selftest PASS
+OK   K7-neg phaselock selftest on a copy whose lock() always answers 'not locked'
+       expected: non-zero exit
+       got     : exit 1; KeyError: 'mean_phase_ms'
+OK   K8 worked example through tl.py validate --static / resolve / validate --timed
+       expected: exit 0 x3, 0 blocking rows
+       got     : exit [0, 0, 0], blocking ['0', '?', '0']
+OK   K8-neg the same example with the energy decision set outside its enum
+       expected: exit 2 (blocking row)
+       got     : exit 2; 1 blocking
+
+13 of 14 control rows OK; FAILED: ['K6']
+exit 1
+git status --short after the run: (clean: the controls left nothing behind)
+

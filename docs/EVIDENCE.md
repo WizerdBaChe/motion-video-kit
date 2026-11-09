@@ -21,6 +21,10 @@ playwright 1.62.0、OpenTimelineIO 0.18.1、ffmpeg 在 PATH。以上為 `verify/
 | K7 | 29 支量測儀器的 `--selftest`：29 exit 0 | K7-neg：phaselock 的 `lock()` 永遠回「未鎖定」：selftest exit 1（KeyError `mean_phase_ms`） |
 | K8 | 範例片經 `tl.py validate --static` / `resolve` / `validate --timed`：exit 0 x3，blocking 0 與 0 | K8-neg：`decisions.energy.value` 改成 `frantic`（不在 calm / lively / hype）：exit 2，1 blocking |
 
+**乾淨 clone 與相依套件封鎖（`verify/fresh_clone_run.txt`）：** 在空的 HOME、USERPROFILE、CLAUDE_CONFIG_DIR 下，clone 後執行控制項：14 of 14 OK，執行後 `git status` 乾淨。
+再各封鎖一個套件重跑：封鎖 matplotlib → 14 of 14 OK（對控制項而言是選用）；封鎖 scipy → 13 of 14，K7 的 `cutdrivers` 與 `springfit` 兩支失敗；
+封鎖 OpenTimelineIO → 13 of 14，K6（edit selftest）失敗。所以 scipy 與 OpenTimelineIO 對各自的工具不是選用。
+
 `--full` 另跑完整的 filmkit 自我測試（原環境 441 項，這個數字沿用原環境紀錄，本 repo 沒有重跑驗證；乾淨環境下需要作品契約目錄的檢查會回報 skip，所以數字不同，不計入）。
 
 **K7 的 29 支儀器各自證明了什麼：** 每支的 `--selftest` 餵入一個已知為真的合成輸入與一個已知為假的合成輸入（例如 phaselock 的合成節拍序列：鎖定與未鎖定），
