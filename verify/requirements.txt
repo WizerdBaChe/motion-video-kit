@@ -1,0 +1,7 @@
+numpy>=2.0
+scipy>=1.13
+matplotlib>=3.9
+opencv-python-headless>=4.10
+pillow>=11
+playwright>=1.50
+OpenTimelineIO>=0.17

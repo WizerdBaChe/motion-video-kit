@@ -1,0 +1,42 @@
+# motion-video-kit
+
+> A Claude Code skill and toolkit for making a whole code-rendered video (hype and intro ads, product tours, showreels, narrated explainers): the motion-video skill (ten-step order of work, five method documents with evidence tiers), a director-sheet layer (film.timeline.json validated, resolved to seconds and approved by tools/timeline/tl.py), filmkit (frame-by-frame render, encode, verify, publish; check.py rules FK-R), a review loop (gates G0-G3, at most 3 rounds), an edit route (EDL / OTIO with provenance), 27 measuring instruments that each carry a --selftest with known-true and known-false synthetic inputs, and one worked example film. Tested on Windows 11 and Python 3.12; no API key needed. The gates catch a careless agent, not an evasive one (docs/EVIDENCE.md).
+
+Start at AGENTS.md. Pin a release tag, not main (current: https://github.com/WizerdBaChe/motion-video-kit/tree/v1.0.0, the same tag the README install prompt names). Code MIT, documentation CC BY 4.0.
+
+## Read-only route (no command execution)
+
+- [docs/EVIDENCE.md](docs/EVIDENCE.md): read first; its "Enforcement map" says which rules code enforces (with file:line) and which are process only, and "Not claimed" lists known gaps
+- [verify/controls_run.txt](verify/controls_run.txt): the recorded acceptance run; read it as the result instead of running the controls
+- [reference-impl/skills/motion-video/SKILL.md](reference-impl/skills/motion-video/SKILL.md): the method, routing table and order of work
+- [reference-impl/films/fanout-pool-explainer/film.timeline.json](reference-impl/films/fanout-pool-explainer/film.timeline.json): a real director sheet
+- [AGENTS.md](AGENTS.md): its first section is facts about the repo; the rest is installation steps for an agent whose user asked for an install
+
+## Entry points
+
+- [AGENTS.md](AGENTS.md): reading order, first command, install table, adaptation rules, what not to adopt
+- [docs/BUILD-SPEC.md](docs/BUILD-SPEC.md): the contract; acceptance K1-K8, environment adaptation, declared edits
+- [docs/EVIDENCE.md](docs/EVIDENCE.md): what this release measured, origin records behind each rule, what is not claimed
+
+## Run
+
+- [verify/run_controls.py](verify/run_controls.py): `python -X utf8 verify/run_controls.py`; two-sided controls, every row must say OK and print expected and actual values
+- [verify/requirements.txt](verify/requirements.txt): Python dependencies; also needs ffmpeg and Chromium (playwright)
+
+## Reference implementation
+
+- [reference-impl/skills/motion-video/references/](reference-impl/skills/motion-video/references/): whole-film rules, film types, rhythm / transitions / camera, build and export, evidence and instruments
+- [reference-impl/tools/timeline/](reference-impl/tools/timeline/): tl.py director-sheet layer, schema, selftest
+- [reference-impl/tools/filmkit/](reference-impl/tools/filmkit/): render.py, check.py, transform.py, rules
+- [reference-impl/tools/review/](reference-impl/tools/review/): review loop G0-G3
+- [reference-impl/tools/edit/](reference-impl/tools/edit/): edit route
+- [reference-impl/tools/](reference-impl/tools/): the 27 measuring instruments
+- [reference-impl/docs/](reference-impl/docs/): filmkit PSM, timeline-layer design and PSM, production order, edit-route design, agent-review design, text-motion vocabulary
+
+## Optional
+
+- [docs/DEVELOPER.md](docs/DEVELOPER.md): structure tree, component and workflow diagrams, design choices, limits, manual acceptance (Traditional Chinese)
+- [README.en.md](README.en.md): English overview; [README.md](README.md): Traditional Chinese overview
+- [CHANGELOG.md](CHANGELOG.md): versions
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md): third-party material and dependency licences
+- [verify/unshipped_paths.txt](verify/unshipped_paths.txt): origin paths deliberately not shipped

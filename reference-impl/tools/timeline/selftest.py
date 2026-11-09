@@ -1518,6 +1518,10 @@ def currency(env: Env):
     pos("currency approve on a DRAFT -> not_current", out.kind == "not_current", lines[0])
 
 
+_LAB_IN_GIT = subprocess.run(["git", "-C", str(Path(__file__).resolve().parents[2]), "rev-parse", "--is-inside-work-tree"],
+                             capture_output=True).returncode == 0  # public kit: a source archive has no git
+
+
 @control
 def made_by_stamp(env: Env):
     """works contract W-2: resolve and approve append a made_by row with the lab commit; an unchanged re-resolve adds none."""
@@ -1526,7 +1530,7 @@ def made_by_stamp(env: Env):
     rows = lambda: json.loads((film / "state.json").read_text(encoding="utf-8")).get("made_by", [])  # noqa: E731
     r1 = rows()
     pos("W-2 resolve -> one made_by row with a 40-hex lab commit", len(r1) == 1 and r1[0]["stage"] == "resolve"
-        and len(r1[0].get("lab_commit") or "") == 40 and "timeline_nsha" in r1[0]["inputs"], json.dumps(r1)[:160])
+        and len(r1[0].get("lab_commit") or "") == (40 if _LAB_IN_GIT else 0) and "timeline_nsha" in r1[0]["inputs"], json.dumps(r1)[:160])
     env.resolve(film)
     neg("W-2 re-resolve on unchanged inputs -> no new row", len(rows()) == 1, f"{len(rows())} rows")
     env.timed(film)
