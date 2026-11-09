@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>fanout-pool-explainer</title>
+<meta name="viewport" content="width=1080">
+<style>
+@font-face{font-family:"NSTC";font-weight:100 900;src:url("fonts/NotoSansTC-VF-subset.woff2") format("woff2");}
+@font-face{font-family:"PlexMono";font-weight:500;src:url("fonts/IBMPlexMono-500-latin.woff2") format("woff2");}
+@font-face{font-family:"PlexMono";font-weight:600;src:url("fonts/IBMPlexMono-600-latin.woff2") format("woff2");}
+:root{--paper:#F3EFE6;--ink:#1E1C19;--ink2:#625C53;--track:#E2DACB;--acc:#0E7C66}
+html,body{margin:0;padding:0;background:var(--paper);}
+body{width:1080px;height:1350px;overflow:hidden;font-family:"NSTC",sans-serif;font-weight:500;color:var(--ink);}
+#stage{position:relative;width:1080px;height:1350px;overflow:hidden;background:var(--paper);}
+.layer{position:absolute;left:0;top:0;width:1080px;height:1350px;transform-origin:540px 600px;}
+.a{position:absolute;left:0;top:0;opacity:0;box-sizing:border-box;}
+.tile{border-radius:5px;}
+.track{background:var(--track);border-radius:3px;}
+.fill{border-radius:3px;}
+.rib{border-radius:4px;transform-origin:0 50%;}
+.chip{border-radius:5px;background:var(--acc);width:40px;height:40px;}
+.wall{background:var(--ink);width:6px;}
+.stamp{background:var(--paper);border:3px solid var(--ink);color:var(--ink);font-weight:800;font-size:30px;line-height:34px;width:86px;height:40px;text-align:center;letter-spacing:.02em;}
+.tray{border:3px solid var(--ink);border-radius:8px;}
+.lbl{font-size:28px;line-height:1.25;color:var(--ink2);white-space:nowrap;}
+.lbl.b{color:var(--ink);font-weight:700;font-size:30px;}
+.lbl.acc{color:var(--acc);font-weight:800;font-size:30px;}
+.lbl .sm{font-size:28px;font-weight:500;color:var(--ink2);}
+.cnt{font-size:52px;font-weight:800;line-height:1.2;white-space:nowrap;transform-origin:0 50%;}
+.ghost{border:3px dashed var(--ink2);border-radius:3px;height:22px;}
+.brk{border:3px solid var(--ink);border-top:none;height:18px;}
+.cell{width:40px;height:40px;border-radius:4px;background:var(--track);}
+.cell.slow{background:var(--ink);}
+.fml{font-size:48px;font-weight:600;white-space:nowrap;}
+.fml sup{font-size:28px;}
+.pct{font-size:120px;font-weight:900;line-height:1.1;white-space:nowrap;}
+.gauge{width:456px;height:112px;}
+.gauge .gl{font-size:28px;color:var(--ink);font-weight:700;line-height:1.2;}
+.gauge svg{display:block;margin-top:8px;}
+.tx{position:absolute;left:64px;white-space:nowrap;opacity:0;line-height:1.3;}
+.h{font-size:60px;font-weight:800;line-height:1.25;width:952px;white-space:normal;}
+.d{font-size:40px;font-weight:600;}
+.s{font-size:30px;color:var(--ink2);}
+.s0{font-size:34px;color:var(--ink2);font-weight:600;}
+.xs{font-size:28px;color:var(--ink2);}
+.nm{font-size:30px;font-weight:700;}
+.fan{font-size:36px;font-weight:700;line-height:1.35;}
+.tag{font-size:32px;color:var(--ink2);}
+.code{font-family:"PlexMono",monospace;font-size:47px;font-weight:500;}
+.code .hl{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-thickness:5px;text-underline-offset:8px;}
+.used{font-size:30px;font-weight:800;color:var(--ink);white-space:nowrap;}
+.rm{font-size:64px;font-weight:900;line-height:1.3;white-space:nowrap;}
+.cta{font-size:52px;font-weight:800;line-height:1.35;}
+.ttl{font-size:72px;font-weight:900;}
+.cnd{font-size:56px;font-weight:900;line-height:1.3;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="grp" class="layer"></div>
+  <div id="grid" class="layer"></div>
+  <div id="fanL" class="layer"></div>
+  <div id="txt" class="layer"></div>
+</div>
+<script>
+(function(){
+"use strict";
+var INK="#1E1C19",RUN="#3A3631",GREY="#BBB3A6",ACC="#0E7C66",TRACK="#E2DACB";
+var END=57.5,FILM=59.5;
+var CL=[["S0",0,4.0],["S1",4.0,10.0],["F1",10.0,17.0],["F2",17.0,25.0],["F3",25.0,33.5],["F4",33.5,40.0],["F5",40.0,51.0],["E1",51.0,55.0],["E2",55.0,57.5]];
+var QY=300;
+function clamp(x,a,b){if(a===undefined)a=0;if(b===undefined)b=1;return x<a?a:(x>b?b:x);}
+function win(t,a,b){return clamp((t-a)/(b-a));}
+function eo(x){return 1-Math.pow(1-x,3);}
+function eio(x){return x<0.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;}
+function lerp(a,b,k){return a+(b-a)*k;}
+function hx(c){return [parseInt(c.substr(1,2),16),parseInt(c.substr(3,2),16),parseInt(c.substr(5,2),16)];}
+function mixc(a,b,k){var x=hx(a),y=hx(b);return "rgb("+Math.round(lerp(x[0],y[0],k))+","+Math.round(lerp(x[1],y[1],k))+","+Math.round(lerp(x[2],y[2],k))+")";}
+function qx(i){return 132+i*40;}
+function cxy(c){return [820+(c%4)*48,420+Math.floor(c/4)*48];}
+var RAD=Math.PI/180;
+
+var grp=document.getElementById("grp"),gridL=document.getElementById("grid"),fanL=document.getElementById("fanL"),txL=document.getElementById("txt");
+var ALL=[];
+function mk(parent,cls,html){var e=document.createElement("div");e.className=cls;if(html!==undefined)e.innerHTML=html;parent.appendChild(e);ALL.push(e);return e;}
+// a shared stage element drawn by both clips at a seam keeps the larger opacity,
+// so a container never vanishes before its contents
+function box(e,x,y,w,h,o,bg){if(o<e._o)return;e._o=o;var s=e.style;s.left=x+"px";s.top=y+"px";if(w!=null)s.width=Math.max(0,w)+"px";if(h!=null)s.height=h+"px";s.opacity=o;if(bg)s.background=bg;}
+
+// ---------- stage elements ----------
+var i;
+var TL=[];for(i=0;i<51;i++)TL.push(mk(grp,"a tile"));
+var TR=[],FI=[];for(i=0;i<40;i++){TR.push(mk(grp,"a track"));FI.push(mk(grp,"a fill"));}
+var CH=[];for(i=0;i<20;i++)CH.push(mk(grp,"a chip"));
+var WS=[];for(i=0;i<6;i++)WS.push(mk(grp,"a wall"));
+var ST=[];for(i=0;i<4;i++)ST.push(mk(grp,"a stamp","429"));
+var trayBox=mk(grp,"a tray"),trayHead=mk(grp,"a lbl","結果"),cntLbl=mk(grp,"a lbl","回來的結果"),cnt=mk(grp,"a cnt"),simL=mk(grp,"a lbl","示意");
+var trayStat=mk(grp,"a lbl b","還差 1 個"),trayDone=mk(grp,"a lbl acc","全部回來");
+var qLbl=mk(grp,"a lbl","佇列");
+var bLbl=mk(grp,"a lbl b","用量額度 <span class='sm'>(usage limit)</span>"),bTr=mk(grp,"a track"),bFi=mk(grp,"a fill");
+var tLbl=mk(grp,"a lbl b","吞吐量 <span class='sm'>(throughput)</span>"),tTr=mk(grp,"a track"),tFi=mk(grp,"a fill");
+var wLbl=mk(grp,"a lbl b","下游上限<br><span class='sm'>（API、資料庫）</span>");
+var pLbl=mk(grp,"a lbl b","工作池"),pBar=mk(grp,"a fill"),pTxt=mk(grp,"a lbl b");
+var gLbl=mk(grp,"a lbl b","逐一做"),GH=[];for(i=0;i<5;i++)GH.push(mk(grp,"a ghost"));var gTxt=mk(grp,"a lbl b","5 秒"),gFill=mk(grp,"a fill");
+var brk=mk(grp,"a brk"),brkL=mk(grp,"a lbl b","等最慢的那一個"),usedL=mk(grp,"a used","用完");
+var nLbl=mk(grp,"a lbl b");
+var SVGA='<svg width="456" height="64" viewBox="0 0 456 64"><line x1="0" y1="62" x2="456" y2="62" stroke="#BBB3A6" stroke-width="2"/><polyline fill="none" stroke="#1E1C19" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" pathLength="1" stroke-dasharray="1 1" points="';
+var g1=mk(grp,"a gauge",'<div class="gl">429 次數：變少</div>'+SVGA+'4,8 70,14 130,12 190,30 250,38 310,48 370,52 452,55"/></svg>');
+var g2=mk(grp,"a gauge",'<div class="gl">排隊長度：不會一直變長</div>'+SVGA+'4,34 70,30 130,36 190,31 250,35 310,32 370,34 452,33"/></svg>');
+var gPL=[g1.querySelector("polyline"),g2.querySelector("polyline")];
+// grid layer (F3)
+var GC=[];for(i=0;i<100;i++){GC.push(mk(gridL,"a cell"+(i===63?" slow":"")));}
+var fml=mk(gridL,"a fml","1 − 0.99<sup>100</sup>"),pct=mk(gridL,"a pct");
+// fan layer: the S0 fan (big, it becomes the lanes) and the small fan (F3 insert, E1 fold, end-card mark)
+// drawn as SVG: leaf band (annular sector over the outer part of the ribs), 20 ribs, a rivet at the pivot
+var NS="http://www.w3.org/2000/svg",SVGE=[];
+function se(parent,tag){var e=document.createElementNS(NS,tag);parent.appendChild(e);SVGE.push(e);return e;}
+var fanSvg=document.createElementNS(NS,"svg");fanSvg.setAttribute("width","1080");fanSvg.setAttribute("height","1350");fanSvg.style.position="absolute";fanSvg.style.left="0";fanSvg.style.top="0";fanL.appendChild(fanSvg);
+var leafP=se(fanSvg,"path");leafP.setAttribute("fill",INK);leafP.setAttribute("fill-opacity","0.16");leafP.setAttribute("stroke",INK);leafP.setAttribute("stroke-width","2.5");leafP.setAttribute("stroke-linejoin","round");
+var RB=[];for(i=0;i<20;i++){var ln=se(fanSvg,"line");RB.push(ln);}
+var rivet=se(fanSvg,"circle");rivet.setAttribute("fill",INK);
+var FT=[];for(i=0;i<20;i++)FT.push(mk(fanL,"a tile"));
+
+function tile(k,x,y,s,c,o){var e=TL[k],st=e.style;st.left=x+"px";st.top=y+"px";st.width=s+"px";st.height=s+"px";st.background=c;st.opacity=o;}
+function ftile(k,x,y,s,c,o){var e=FT[k],st=e.style;st.left=x+"px";st.top=y+"px";st.width=s+"px";st.height=s+"px";st.background=c;st.opacity=o;}
+function sop(e,o){if(o<e._o)return false;e._o=o;e.style.opacity=o;return true;}
+function rib(k,px,py,len,ang,th,col,o){var e=RB[k];if(!sop(e,o))return;
+  e.setAttribute("x1",px.toFixed(2));e.setAttribute("y1",py.toFixed(2));
+  e.setAttribute("x2",(px+len*Math.cos(ang*RAD)).toFixed(2));e.setAttribute("y2",(py+len*Math.sin(ang*RAD)).toFixed(2));
+  e.setAttribute("stroke",col);e.setAttribute("stroke-width",th.toFixed(2));}
+function pt(px,py,r,a){return (px+r*Math.cos(a*RAD)).toFixed(2)+","+(py+r*Math.sin(a*RAD)).toFixed(2);}
+function leaf(px,py,r1,r2,a0,a1,o){if(!sop(leafP,o))return;
+  var lg=(a1-a0)>180?1:0;
+  leafP.setAttribute("d","M"+pt(px,py,r1,a0)+" L"+pt(px,py,r2,a0)+" A"+r2+","+r2+" 0 "+lg+" 1 "+pt(px,py,r2,a1)+" L"+pt(px,py,r1,a1)+" A"+r1+","+r1+" 0 "+lg+" 0 "+pt(px,py,r1,a0)+" Z");}
+function rivetAt(px,py,r,o){if(!sop(rivet,o))return;rivet.setAttribute("cx",px);rivet.setAttribute("cy",py);rivet.setAttribute("r",r);}
+function track(k,x,y,w,h,o){box(TR[k],x,y,w,h,o);}
+function fill(k,x,y,w,h,p,c,o){box(FI[k],x,y,w*clamp(p),h,o,c);}
+function wall(x,y0,y1,gaps,o){var segs=[],cur=y0;for(var g=0;g<gaps.length;g++){if(gaps[g][0]>cur)segs.push([cur,gaps[g][0]]);cur=gaps[g][1];}if(cur<y1)segs.push([cur,y1]);for(var s=0;s<WS.length;s++){if(s<segs.length)box(WS[s],x,segs[s][0],null,segs[s][1]-segs[s][0],o);}}
+function tray(o){box(trayBox,800,370,216,450,o);box(trayHead,818,378,null,null,o);}
+function counter(txt,o,sc){cnt.textContent=txt;box(cntLbl,818,668,null,null,o);box(cnt,818,702,null,null,o);cnt.style.transform="scale("+(sc||1)+")";}
+function queueLabel(o){box(qLbl,64,QY-2,null,null,o);}
+function budget(f,o){box(bLbl,64,876,null,null,o);box(bTr,64,925,952,22,o);box(bFi,64,925,952*f,22,o,RUN);}
+// the small fan (the S0 fan again: leaf band, ribs, rivet), pivot at the lower left, ribs pointing up;
+// spread[i] in 0..1 (0 = folded); span = full opening angle; the leaf covers every rib except one held out
+var SFX=240,SFY=1290,SFL=400;
+function smallFan(spread,o,span,outRib){
+  var a0=1e9,a1=-1e9;
+  for(var k=0;k<20;k++){
+    var f=k/19-0.5,sp=spread.length?spread[k]:spread;
+    var ang=-90+f*span*lerp(0.15,1,sp);
+    // guard sticks stay thick; inner ribs thin out as they fold so the closed fan shows its leaf, not a solid spike
+    var guard=(k===0||k===19);
+    rib(k,SFX,SFY,SFL,ang,guard?5:lerp(1.4,4,sp),guard?INK:mixc(GREY,INK,sp),o);
+    if(k!==outRib){a0=Math.min(a0,ang);a1=Math.max(a1,ang);}
+  }
+  leaf(SFX,SFY,SFL*0.6,SFL,a0-0.6,a1+0.6,o);
+  rivetAt(SFX,SFY,11,o);
+}
+
+// generic job: queue -> lane -> tray chip
+function job(u,o,ti,li,sy,sh,ts,ci,qi,pu,st,en,ld,frz){
+  var x,y,s,c=INK,ty=sy+(sh-ts)/2,tx0=64,LW=676,p=-1,pc=RUN,po=0;
+  if(u<pu){x=qx(qi);y=QY;s=28;}
+  else if(u<st){var k=eio(win(u,pu,st));x=lerp(qx(qi),tx0,k);y=lerp(QY,ty,k);s=lerp(28,ts,k);}
+  else if(frz!=null&&u>=frz){var pf=win(frz,st,en),kf=win(u,frz,frz+0.3);x=tx0+pf*(LW-ts);y=ty;s=ts;c=mixc(INK,GREY,kf);p=pf;pc=mixc(RUN,GREY,kf);po=1;}
+  else if(u<en){var pp=win(u,st,en);x=tx0+pp*(LW-ts);y=ty;s=ts;p=pp;po=1;}
+  else if(u<ld){var k2=eio(win(u,en,ld)),cp=cxy(ci);x=lerp(tx0+LW-ts,cp[0],k2);y=lerp(ty,cp[1],k2);s=lerp(ts,40,k2);c=ACC;p=1;po=1-k2;}
+  else {var cp2=cxy(ci);x=cp2[0];y=cp2[1];s=40;c=ACC;}
+  tile(ti,x,y,s,c,o);
+  if(p>=0)fill(li,64,sy,LW,sh,p,pc,o*po);
+}
+
+var zoom=1;
+// ---------- clips (u = seconds into the clip, o = opacity multiplier) ----------
+function s1y(k){return 380+k*24;}
+function S0(u,o){
+  // one tile opens into 20 ribs like a hand fan, then the ribs straighten into the 20 lanes
+  var open=eio(win(u,0.3,1.3)),straight=eio(win(u,3.0,4.0));
+  var breathe=1+0.05*Math.sin(2*Math.PI*(u-1.3)/2.4)*win(u,1.3,1.7)*(1-win(u,2.8,3.0));
+  var ro=o*eo(win(u,0.25,0.45));
+  for(var k=0;k<20;k++){
+    var f=k/19-0.5,ang=f*80*open*breathe,ly=s1y(k);
+    var px=lerp(100,64,straight),py=lerp(640,ly+6,straight),len=lerp(560,676,straight),a=lerp(ang,0,straight);
+    rib(k,px,py,len,a,lerp(4,12,straight),mixc(INK,TRACK,straight),ro);
+    // the single tile splits; each part rides its rib outward
+    // under the title hold the tiles keep travelling out along their ribs to the leaf edge ("sending out")
+    var r=lerp(0,280,open)+220*eio(win(u,0.9,3.2)),s=lerp(28,22,open);
+    var fx=100+r*Math.cos(ang*RAD)-s/2,fy=640+r*Math.sin(ang*RAD)-s/2;
+    var x=lerp(fx,64,straight),y=lerp(fy,ly-2,straight),sz=lerp(s,16,straight);
+    ftile(k,x,y,sz,INK,o*eo(win(u,0.0,0.2)));
+  }
+  // the leaf band over the outer third of the ribs makes it read as a hand fan; it lifts off as the ribs straighten
+  var hw=40*open*breathe,lo=ro*(1-win(u,2.85,3.25));
+  if(hw>0.3)leaf(100,640,560*0.67,560,-hw-0.6,hw+0.6,lo);
+  rivetAt(100,640,lerp(9,12,open),lo);
+}
+function S1(u,o){
+  var p=0.35*win(u,0.3,2.6),fz=win(u,2.6,2.9);
+  var col=mixc(INK,GREY,fz),rc=mixc(RUN,GREY,fz);
+  for(var k=0;k<20;k++){
+    var ly=s1y(k);
+    tile(k,64+p*(676-16),ly-2,16,col,o);
+    track(k,64,ly,676,12,o);
+    fill(k,64,ly,676,12,p,rc,o);
+  }
+  var tb=o*eo(win(u,0.0,0.4));
+  tray(tb);
+  var bump=Math.sin(Math.PI*win(u,2.9,3.35));
+  counter("0 / 20",tb,1+0.14*bump);
+  budget(1-win(u,0.3,2.6),o*eo(win(u,0.0,0.3)));
+  box(usedL,952,872,null,null,o*eo(win(u,2.6,2.9)));
+}
+var F1DUR=7.0,F1A=[1.4,2.1,2.8,2.8,3.5,3.6,3.7,3.8];
+function f1y(k){return 392+56*k;}
+function F1(u,o,asPrev){
+  queueLabel(o*eo(win(u,0.2,0.5)));
+  for(var k=0;k<12;k++)tile(32+k,qx(k),QY,28,INK,o*eo(win(u,0.3+k*0.02,0.6+k*0.02)));
+  tray(o);
+  var wo=o*eo(win(u,1.0,1.4)),gaps=[];
+  for(var g=0;g<4;g++)gaps.push([f1y(g)-10,f1y(g)+30]);
+  wall(770,372,820,gaps,wo);box(wLbl,790,830,null,null,wo);
+  var to=o*eo(win(u,1.0,1.4));
+  var tp=0.25*eo(win(u,1.4,1.8))+0.25*eo(win(u,2.1,2.5))+0.5*eo(win(u,2.8,3.2));
+  box(tLbl,64,876,null,null,to);box(tTr,64,925,952,22,to);box(tFi,64,925,666*tp,22,to,ACC);
+  // results that pass the limit line stay in the tray
+  var total=0;
+  for(var c0=0;c0<4;c0++){if(u>=F1A[c0])total+=Math.floor(((u-F1A[c0])+c0*0.23)/0.9);}
+  for(var c=0;c<Math.min(total,20);c++){var cp=cxy(c);box(CH[c],cp[0],cp[1],null,null,o);}
+  for(var i2=0;i2<8;i2++){
+    var a=F1A[i2];if(u<a)continue;
+    var lo=o*eo(win(u,a,a+0.25)),y=f1y(i2);
+    if(!asPrev)track(20+i2,64,y,676,20,lo);
+    if(i2<4){
+      var ph=(((u-a)+i2*0.23)%0.9)/0.9;
+      if(ph<0.8){var pp=ph/0.8;if(!asPrev)fill(20+i2,64,y,676,20,pp,RUN,lo);tile(24+i2,64+pp*(676-24),y-2,24,INK,lo);}
+      else{var kk=eio((ph-0.8)/0.2),tc=cxy(Math.min(total,19));if(!asPrev)fill(20+i2,64,y,676,20,1,RUN,lo*(1-kk));tile(24+i2,lerp(716,tc[0],kk),lerp(y-2,tc[1],kk),lerp(24,40,kk),ACC,total<20?lo:lo*(1-kk));}
+    }else{
+      var k1=eio(win(u,a,a+0.45)),k2=eo(win(u,a+0.45,a+0.8));
+      var x=(u<a+0.45)?lerp(64,746,k1):lerp(746,520,k2);
+      tile(24+i2,x,y-2,24,mixc(INK,GREY,k2),lo);
+      if(!asPrev)fill(20+i2,64,y,676,20,(x+24-64)/676,mixc(RUN,GREY,k2),lo);
+      box(ST[i2-4],x-100,y-10,null,null,lo*eo(win(u,a+0.4,a+0.55)));
+    }
+  }
+}
+function F2(u,o){
+  queueLabel(o);tray(o);
+  var kc=eio(win(u,0,0.5));
+  // F1's last fills ride along with the collapsing lanes for the first beat
+  if(u<0.5){for(var kf=0;kf<8;kf++){
+    var jf=Math.min(kf,2),pf,cf=RUN;
+    if(kf<4){var phf=(((F1DUR-F1A[kf])+kf*0.23)%0.9)/0.9;pf=phf<0.8?phf/0.8:1;}else{pf=(520+24-64)/676;cf=GREY;}
+    fill(kf,64,lerp(f1y(kf),430+120*jf,kc),676,lerp(20,56,kc),pf,cf,o*(1-kc));}}
+  for(var k=0;k<8;k++){
+    var j=Math.min(k,2),y=lerp(f1y(k),430+120*j,kc),h=lerp(20,56,kc);
+    track(k,64,y,676,h,k<3?o:o*(1-kc));
+  }
+  var SL=[0,1,2,0,1],PU=[2.4,2.4,2.4,3.65,3.65],STt=[2.6,2.6,2.6,3.95,3.95];
+  for(var m=0;m<5;m++){
+    var ap=o*eo(win(u,0.5+m*0.08,0.8+m*0.08));
+    job(u,ap,8+m,SL[m],430+120*SL[m],56,48,m,m,PU[m],STt[m],STt[m]+1.0,STt[m]+1.25,null);
+  }
+  var po=o*eo(win(u,2.3,2.6)),sv=2*win(u,2.6,4.95);
+  box(pLbl,64,864,null,null,po);box(pBar,180,872,700*sv/5,22,po,INK);
+  pTxt.textContent=(u>=4.95)?"約 2 秒":(sv.toFixed(1)+" 秒");
+  box(pTxt,180+700*sv/5+16,864,null,null,po);
+  for(var g=0;g<5;g++)box(GH[g],180+140*g,922,136,22,o*eo(win(u,5.0+0.1*g,5.3+0.1*g)));
+  // the one-by-one row fills cell by cell while the data line is read (one job after another)
+  var gf=win(u,5.3,7.7),gc=Math.min(4,Math.floor(gf*5)),gw=140*gc+136*eio(clamp(gf*5-gc));
+  box(gFill,180,922,gw,22,o*eo(win(u,5.3,5.45)),GREY);
+  box(gLbl,64,914,null,null,o*eo(win(u,5.0,5.3)));
+  box(gTxt,896,914,null,null,o*eo(win(u,5.4,5.7)));
+}
+function F3(u,o,asPrev){
+  var kz=eio(win(u,4.3,5.1)),o0=o;
+  o=o0*(1-kz);
+  queueLabel(o);tray(o);
+  for(var j=0;j<3;j++)track(20+j,64,430+120*j,676,56,o);
+  var SL=[0,1,2,0,1,2],PU=[0.2,0.2,0.2,0.95,0.95,0.95],STt=[0.35,0.35,0.35,1.1,1.1,1.1],EN=[0.95,0.95,0.95,1.6,1.6,3.9];
+  for(var m=0;m<6;m++){
+    var ap=o*eo(win(u,0.1+m*0.04,0.35+m*0.04));
+    job(u,ap,24+m,20+SL[m],430+120*SL[m],56,48,m,m,PU[m],STt[m],EN[m],EN[m]+0.2,null);
+  }
+  box(trayStat,818,668,null,null,o*win(u,1.7,1.9)*(1-win(u,3.9,4.1)));
+  box(trayDone,818,668,null,null,o*eo(win(u,4.1,4.3)));
+  // wait bracket: spans the part of the slow lane still to run (bar end -> lane end)
+  var bx=64+win(u,1.1,3.9)*676,bo=o*eo(win(u,1.6,1.8))*(1-win(u,3.8,4.0));
+  box(brk,bx,736,740-bx,18,bo);
+  box(brkL,Math.min(bx,500),762,null,null,bo);
+  // analogy insert: the small fan, every rib folded but one, which folds when the slow tile lands
+  var fo=o0*eo(win(u,1.6,1.9))*(1-win(u,4.1,4.4)),op=eio(win(u,1.6,2.0)),fd=eio(win(u,2.1,2.5)),fl=eio(win(u,3.9,4.1));
+  var spr=[];for(var k=0;k<20;k++)spr.push(k===19?op*(1-fl):op*(1-fd));
+  if(fo>0)smallFan(spr,fo,56,fl<1?19:-1);
+  if(!asPrev)zoom=lerp(1,0.4,kz);
+  gridL.style.transform="scale("+lerp(2.0,1,kz)+")";gridL.style.opacity=o0*kz;
+  for(var c=0;c<100;c++)box(GC[c],64+(c%10)*48,400+Math.floor(c/10)*48,null,null,1);
+  // the slow cell pulses once per second after the count lands; numbers and text stay still
+  var pz=Math.max(0,Math.sin(2*Math.PI*(u-5.9)))*win(u,5.9,6.1);
+  GC[63].style.transform="scale("+(1+0.22*pz).toFixed(4)+")";
+  var ro=eo(win(u,5.1,5.4));
+  box(fml,600,420,null,null,ro);
+  pct.textContent="≈ "+Math.round(63*eo(win(u,5.2,6.2)))+"%";
+  box(pct,600,500,null,null,ro);
+}
+function F4(u,o){
+  var si=o*eo(win(u,0.15,0.55));
+  queueLabel(si);tray(si);
+  for(var j=0;j<2;j++)track(j,64,470+130*j,676,56,si);
+  // the queue closes up from the front as each pair is pulled
+  var picked=0;for(var kp=0;kp<4;kp++)picked+=2*eio(win(u,0.5+0.7*kp,0.8+0.7*kp));
+  var n=0;
+  for(var k=0;k<4;k++)for(var m=0;m<2;m++){
+    var q=2*k+m,s=0.7+0.7*k;
+    job(u,si,q,m,470+130*m,56,48,q,q-Math.min(picked,2*k),s-0.2,s,s+0.7,s+0.9,k===3?3.15:null);
+    if(k<3&&u>=s+0.9)n++;
+  }
+  for(var r=8;r<20;r++){tile(r,qx(r-picked),QY,28,INK,o*eo(win(u,0.15+r*0.01,0.45+r*0.01)));}
+  box(usedL,952,872,null,null,si*eo(win(u,3.15,3.45)));
+  counter(n+" / 20",si,1);
+  box(simL,818,776,null,null,o*eo(win(u,3.0,3.3)));
+  budget(1-win(u,0.7,3.15),si);
+}
+var F5A=[6.6,7.1,8.3];
+function f5y(j){return 420+84*j;}
+function F5(u,o){
+  var so=o*eo(win(u,3.9,4.3));
+  queueLabel(so);
+  // the queue loses one tile each time a slot starts a job
+  var started=0;for(var s0=0;s0<3;s0++){if(u>=F5A[s0])started+=Math.floor((u-F5A[s0])/0.82)+1;}
+  for(var r=0;r<20-started;r++)tile(24+r,qx(r),QY,28,INK,so);
+  for(var j=0;j<4;j++)track(20+j,64,f5y(j),676,40,so);
+  var wo=o*eo(win(u,4.0,4.4)),gaps=[];
+  for(var g=0;g<4;g++)gaps.push([f5y(g)-10,f5y(g)+50]);
+  wall(770,400,790,gaps,wo);box(wLbl,790,830,null,null,wo);
+  tray(so);
+  // each started slot always has one job running (the next starts as the last result leaves the lane);
+  // a finished result flies to the tray during the first 30% of the next run.
+  // queue + running + flying + landed = 20 in every frame
+  var CY=0.82,FLY=0.3,nAct=0,total=0,fly=[];
+  for(var s=0;s<3;s++){
+    if(u<F5A[s]){fly.push(false);continue;}
+    nAct++;var e0=u-F5A[s],cy=Math.floor(e0/CY),fl=cy>=1&&(e0%CY)/CY<FLY;
+    fly.push(fl);total+=cy-(fl?1:0);
+  }
+  nLbl.textContent="同時在跑 N = "+Math.max(1,nAct);
+  box(nLbl,64,368,null,null,o*eo(win(u,F5A[0],F5A[0]+0.3)));
+  var rank=0;
+  for(s=0;s<3;s++){
+    if(u<F5A[s])continue;
+    var e=u-F5A[s],ph=(e%CY)/CY,y=f5y(s),ts=32,ty=y+4;
+    var ao=o*eo(win(u,F5A[s],F5A[s]+0.2));
+    fill(20+s,64,y,676,40,ph,RUN,ao);tile(44+s,64+ph*(676-ts),ty,ts,INK,ao);
+    if(fly[s]){var kk=eio(ph/FLY),cp=cxy(Math.min(total+rank,19));rank++;
+      tile(48+s,lerp(64+676-ts,cp[0],kk),lerp(ty,cp[1],kk),lerp(ts,40,kk),ACC,ao);}
+  }
+  for(var c=0;c<Math.min(total,20);c++){var p2=cxy(c);box(CH[c],p2[0],p2[1],null,null,so);}
+  var go=o*eo(win(u,8.9,9.3)),d=eo(win(u,9.1,10.1));
+  box(g1,64,918,null,null,go);box(g2,560,918,null,null,go);
+  gPL[0].setAttribute("stroke-dashoffset",(1-d).toFixed(4));gPL[1].setAttribute("stroke-dashoffset",(1-d).toFixed(4));
+}
+function e1Landed(u){var n=0;for(var r=0;r<5;r++){var s=0.25+0.3*r;n+=4*eio(win(u,s+0.2,s+0.28));}return n;}
+function E1(u,o){
+  grp.style.opacity=1-0.7*eio(win(u,2.3,2.9));
+  queueLabel(o);
+  for(var j=0;j<4;j++)track(j,64,f5y(j),676,40,o);
+  var gaps=[];for(var g=0;g<4;g++)gaps.push([f5y(g)-10,f5y(g)+50]);
+  wall(770,400,790,gaps,o);box(wLbl,790,830,null,null,o);
+  tray(o);
+  nLbl.textContent="同時在跑 N = 4";box(nLbl,64,368,null,null,o);
+  var n=0;
+  for(var r=0;r<5;r++)for(var m=0;m<4;m++){
+    var q=4*r+m,s=0.25+0.3*r;
+    // F5 left 5 tiles in the queue; the other 15 fade in after the seam
+    var qa=q<5?1:eo(win(u,0.1+0.02*q,0.3+0.02*q));
+    job(u,o*qa,q,m,f5y(m),40,32,q,q,s-0.1,s,s+0.2,s+0.28,null);
+    if(u>=s+0.28)n++;
+  }
+  counter(n+" / 20",o*eo(win(u,0.1,0.4)),1);
+  box(simL,818,776,null,null,o*eo(win(u,0.1,0.4)));
+  // the opening's fan returns and folds shut as the results come back
+  var fold=eio(clamp(e1Landed(u)/20)),fo=eo(win(u,0.1,0.35));
+  smallFan(eo(win(u,0.1,0.4))*(1-fold),fo,56,-1);
+}
+function E2(u,o){
+  smallFan(0,1,56,-1);
+}
+var FN={S0:S0,S1:S1,F1:F1,F2:F2,F3:F3,F4:F4,F5:F5,E1:E1,E2:E2};
+var SEAM={F1:0.45,F2:0.5,F3:0.45,F4:0.35,F5:0.4,E1:0.45,E2:0.35};
+
+// ---------- on-screen text (absolute film seconds) ----------
+// [class, html, top, in, out, left]
+var TX=[
+ ["h","fan-out：<br>一個工作，同時分給很多人做",84,0.4,4.3],
+ ["s0","分出去叫 fan-out，收回來叫 fan-in",1090,0.9,4.3],
+ ["h","一次全部分出去：20 個子代理",84,4.3,10.3],
+ ["d","額度燒完時，一份結果都沒回來",1010,6.8,10.3],
+ ["s","Claude Code 預設同時 20 個子代理，可調",1146,5.5,10.3],
+ ["xs","來源：Claude Code 文件〈Create custom subagents〉",1194,5.6,10.3],
+ ["xs","code.claude.com/docs/en/sub-agents（查證 2026-10-19）",1234,5.65,10.3],
+ ["h","直覺：worker 越多越快？",84,10.3,17.3],
+ ["d","下游一次只吃得下這麼多；",1000,13.6,17.3],
+ ["d","超過的拿到 HTTP 429（請求太多）",1058,13.75,17.3],
+ ["h","工作池：固定幾個位子，<br>做完一個才拿下一個",84,17.3,25.3],
+ ["lblx","worker pool（工作池）：3 個 worker",370,17.9,25.3],
+ ["d","3 個 worker、5 個各 1 秒的工作",1000,22.0,25.3],
+ ["d","→ 約 2 秒做完（逐一做要 5 秒）",1058,22.15,25.3],
+ ["s","名稱：worker pool／bounded concurrency",1128,22.4,25.3],
+ ["xs","來源：Go by Example〈Worker Pools〉",1176,22.55,25.3],
+ ["h","收回來的時間，看最慢的那一個",84,25.3,33.8],
+ ["nm","fan-in（扇入）・tail latency（尾端延遲）",370,26.4,29.3],
+ ["fan","扇子要等最後一根收回來，<br>才合得起來",1040,26.8,29.3,520],
+ ["d","每次同時問 100 台，約 63% 的機會",1000,29.9,33.8],
+ ["d","至少要等一台慢的",1058,30.05,33.8],
+ ["s","（1 台有 1% 的機率慢）",1124,30.2,33.8],
+ ["xs","來源：Dean &amp; Barroso〈The Tail at Scale〉(2013)",1172,30.35,33.8],
+ ["h","額度用完時，已經收回來的還在",84,33.8,40.3],
+ ["d","同樣 20 個工作、同樣的額度，一次只跑 2 個：",1000,36.5,40.3],
+ ["d","額度歸零時已收 6 / 20（示意）",1058,36.65,40.3],
+ ["h","你的程式裡，上限就在這一行",84,40.3,51.3],
+ ["tag","Python・concurrent.futures",400,40.4,44.1],
+ ["code","ThreadPoolExecutor(max_workers=<span class='hl'>4</span>)",446,40.5,44.1],
+ ["tag","Python・asyncio",660,41.0,44.1],
+ ["code","asyncio.Semaphore(<span class='hl'>4</span>)",706,41.1,44.1],
+ ["tag","Go・golang.org/x/sync/errgroup",920,41.6,44.1],
+ ["code","g.SetLimit(<span class='hl'>4</span>)",966,41.7,44.1],
+ ["d","判斷：N 跟著下游上限走，不跟著工作數走",1070,44.3,47.0],
+ ["s","下游上限：看 API 文件的 rate limit，",1134,44.6,47.0],
+ ["s","或 429 回應的 Retry-After",1174,44.7,47.0],
+ ["d","第一步：先設小，結果收得回來再往上加",1070,47.0,49.05],
+ ["d","驗收：429 變少、排隊不會一直變長",1070,49.0,51.3],
+ ["rm","限住同時在跑的數量，<br>結果才回得來",992,53.4,55.6,330],
+ // E2 bookend: the opening definition returns in the S0 type and is answered by what fan-out is for;
+ // then the end card resolves in slots that never overlap the outgoing lines (no double exposure),
+ // with the condition beside the closed fan where the remember line stood
+ ["h","fan-out：<br>一個工作，同時分給很多人做",330,55.35,57.0],
+ ["h","fan-out：<br>分出去，是為了更快把結果拿回來",700,55.5,57.0],
+ ["ttl","fan-out 工作池",200,56.75,1e9],
+ ["cta","分出去，是為了更快拿回來",540,56.8,1e9],
+ ["cnd","前提：<br>限住同時在跑的數量",1010,56.85,1e9,330]
+];
+var TXE=[];
+for(i=0;i<TX.length;i++){
+  var r=TX[i],cls=r[0]==="lblx"?"tx lbl b":"tx "+r[0];
+  var e=document.createElement("div");e.className=cls;e.innerHTML=r[1];e.style.top=r[2]+"px";if(r[5]!=null)e.style.left=r[5]+"px";txL.appendChild(e);TXE.push(e);
+}
+function texts(t){
+  for(var k=0;k<TX.length;k++){
+    var r=TX[k],tin=r[3],tout=r[4];
+    var a=eo(win(t,tin,tin+0.35)),b=1-win(t,tout-0.3,tout);
+    TXE[k].style.opacity=a*b;
+    TXE[k].style.transform="translateY("+((1-a)*18).toFixed(2)+"px)";
+  }
+}
+
+// ---------- time driver ----------
+function reset(){
+  for(var k=0;k<ALL.length;k++){ALL[k].style.opacity=0;ALL[k]._o=0;}
+  for(k=0;k<SVGE.length;k++){SVGE[k].style.opacity=0;SVGE[k]._o=0;}
+  cnt.style.transform="none";GC[63].style.transform="none";
+  grp.style.opacity=1;
+  gridL.style.transform="none";gridL.style.opacity=0;
+  zoom=1;
+}
+// no whole-stage motion: under a hold only a content element moves, or the frame holds still
+function setTime(t){
+  t=clamp(t,0,FILM);
+  var tc=Math.min(t,END-1e-6);
+  reset();
+  for(var k=0;k<CL.length;k++){
+    var c=CL[k];
+    if(tc>=c[1]&&tc<c[2]){
+      var u=tc-c[1];
+      if(k>0&&SEAM[c[0]]&&u<SEAM[c[0]]){var pv=CL[k-1];FN[pv[0]](pv[2]-pv[1],1-win(u,0,SEAM[c[0]]),true);}
+      FN[c[0]](u,1);
+      break;
+    }
+  }
+  grp.style.transform=zoom===1?"none":"scale("+zoom.toFixed(5)+")";
+  texts(t);
+}
+window.__setTime=setTime;
+window.__ready=Promise.all([
+  document.fonts.load('500 40px "NSTC"',"一次派出"),
+  document.fonts.load('800 60px "NSTC"',"一次派出"),
+  document.fonts.load('900 80px "NSTC"',"限住"),
+  document.fonts.load('500 44px "PlexMono"',"ThreadPool"),
+  document.fonts.load('600 44px "PlexMono"',"4")
+]).then(function(){setTime(0);return true;});
+setTime(0);
+})();
+</script>
+</body>
+</html>

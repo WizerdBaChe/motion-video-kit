@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "lab-round": {
+      "video": {"codec": "libx264", "crf": 16, "preset": "slow", "pix_fmt": "yuv420p", "faststart": true},
+      "audio": {"codec": "aac", "bitrate": "192k", "channels": 2},
+      "fps_default": 30,
+      "timeouts_s": {"render": 3600, "ready": 30, "check": 600, "transform": 900},
+      "progress_every_frames": 150,
+      "resample_count": 12,
+      "write_retry": {"attempts": 10, "step_s": 0.05},
+      "sheet": {"columns": 10, "thumb_width": 192, "max_frames": 300},
+      "thresholds": {
+        "black":  {"min_duration_s": 2.0, "picture_ratio": 0.999, "pixel_threshold": 0.10, "calibrated": false},
+        "freeze": {"noise": 0.001, "min_duration_s": 2.0, "end_min_duration_s": 1.0, "start_min_duration_s": 1.0, "start_window_s": 5.0, "local_tile_median_max": 0.0005, "calibrated": false},
+        "silence": {"noise_db": -50, "min_duration_s": 2.0, "calibrated": false},
+        "first_frame": {"max_luma_stddev": 3.0, "min_diff_to_1s": 12.0, "min_flat_s": 0.2, "calibrated": false},
+        "av_length_tolerance_s": 0.1,
+        "duration_tolerance_frames": 1
+      }
+    },
+    "delivery-web": {
+      "video": {"codec": "libx264", "crf": 16, "preset": "slow", "pix_fmt": "yuv420p", "faststart": true},
+      "audio": {"codec": "aac", "bitrate": "192k", "channels": 2},
+      "fps_default": 30,
+      "timeouts_s": {"render": 3600, "ready": 30, "check": 600, "transform": 900},
+      "progress_every_frames": 150,
+      "resample_count": 12,
+      "write_retry": {"attempts": 10, "step_s": 0.05},
+      "sheet": {"columns": 10, "thumb_width": 192, "max_frames": 300},
+      "thresholds": {
+        "black":  {"min_duration_s": 2.0, "picture_ratio": 0.999, "pixel_threshold": 0.10, "calibrated": false},
+        "freeze": {"noise": 0.001, "min_duration_s": 2.0, "end_min_duration_s": 1.0, "start_min_duration_s": 1.0, "start_window_s": 5.0, "local_tile_median_max": 0.0005, "calibrated": false},
+        "silence": {"noise_db": -50, "min_duration_s": 2.0, "calibrated": false},
+        "first_frame": {"max_luma_stddev": 3.0, "min_diff_to_1s": 12.0, "min_flat_s": 0.2, "calibrated": false},
+        "av_length_tolerance_s": 0.1,
+        "duration_tolerance_frames": 1
+      }
+    }
+  }
+}

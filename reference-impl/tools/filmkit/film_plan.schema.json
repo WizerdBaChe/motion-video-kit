@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "filmkit/film_plan.schema.json",
+  "title": "film_plan.json",
+  "description": "Author-written film plan. Keywords prefixed x-filmkit- state rules JSON Schema cannot express; spec.validate_plan() implements them and selftest.py checks both agree.",
+  "type": "object",
+  "required": ["schema_version"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-filmkit-whole-frames": "duration_s * fps (fps from this object, else the profile default 30) is a whole number",
+      "properties": {
+        "duration_s": {"type": "number", "exclusiveMinimum": 0},
+        "size": {"type": "string", "pattern": "^[0-9]+x[0-9]+$", "x-filmkit-even-size": "both dimensions even and >= 16"},
+        "fps": {"type": "integer", "minimum": 1, "maximum": 120},
+        "audio_expected": {"type": "boolean"}
+      }
+    },
+    "film_type": {"type": "string", "pattern": "^[a-z0-9-]{1,40}$"},
+    "mount_design_axes": {"type": "boolean", "description": "false = this film declares it was made without the shared design-axes mount (FK-R-18 control arm); needs mount_design_axes_why"},
+    "mount_design_axes_why": {"type": "string", "minLength": 1, "description": "the author's reason for mount_design_axes: false, quoted in the FK-R-18 row"},
+    "sections": {"type": "array", "items": {"$ref": "#/$defs/section"}},
+    "holds": {"type": "array", "items": {"$ref": "#/$defs/declaration"}},
+    "blacks": {"type": "array", "items": {"$ref": "#/$defs/declaration"}},
+    "silences": {"type": "array", "items": {"$ref": "#/$defs/declaration"}},
+    "cuts": {"type": "array", "items": {"$ref": "#/$defs/declaration"}, "description": "intended hard cuts: pagescan QF-2 does not list a one-frame text appearance inside [t0 - 1 frame, t1 + 1 frame]"},
+    "pulses": {"type": "array", "items": {"$ref": "#/$defs/declaration"}, "description": "content-driven pulses (T12): pagescan QF-6 reports a pulse inside [t0, t1] as declared, quoting why"},
+    "narration_lines": {"type": "array", "items": {"$ref": "#/$defs/section"}}
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "required": ["id", "t0", "t1"],
+      "additionalProperties": false,
+      "x-filmkit-t0-lt-t1": true,
+      "properties": {
+        "id": {"type": "string"},
+        "t0": {"type": "number", "minimum": 0},
+        "t1": {"type": "number", "minimum": 0}
+      }
+    },
+    "declaration": {
+      "type": "object",
+      "required": ["t0", "t1", "why"],
+      "additionalProperties": false,
+      "x-filmkit-t0-lt-t1": true,
+      "properties": {
+        "t0": {"type": "number", "minimum": 0},
+        "t1": {"type": "number", "minimum": 0},
+        "why": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      }
+    }
+  }
+}

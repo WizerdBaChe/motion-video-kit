@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "film.timeline.schema.json",
+  "title": "film.timeline.json (timeline layer, schema_version 1)",
+  "description": "Documentation + fixture agreement (PSM 4.1). The stdlib validator in _tl/model.py is authoritative and also checks what JSON Schema cannot: anchor targets, the anchor graph, SEM-3, narration order, film_id = folder, whole frames, the rules-file film types. Keywords prefixed x-tl- are custom: x-tl-film-end-requires-fixed (no anchor film.end anywhere unless meta.format.duration_policy is fixed, SEM-11) x-tl-unique-casefold (array items' named property unique case-insensitively, TG-8) and x-tl-unique-key-ids (keys[].id unique across every picture and overlay clip, agent-review design 3.1).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "tracks"],
+  "x-tl-film-end-requires-fixed": true,
+  "x-tl-unique-key-ids": true,
+  "properties": {
+    "meta": {"$ref": "#/$defs/meta"},
+    "decisions": {"$ref": "#/$defs/decisions"},
+    "assets": {"type": "array", "items": {"$ref": "#/$defs/asset"}, "x-tl-unique-casefold": "path"},
+    "tracks": {"$ref": "#/$defs/tracks"},
+    "product_state": {"type": "array", "description": "What the product looks like in each feature shot (convergence-build-design §3): ids for clip shows_state; TV-20/TV-21.",
+                      "items": {"$ref": "#/$defs/state"}}
+  },
+  "$defs": {
+    "num_ge0": {"type": "number", "minimum": 0},
+    "nonempty": {"type": "string", "pattern": "\\S"},
+    "ref": {"type": "string", "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+@[0-9]+$"},
+    "claim": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,39}:.+$"},
+    "assetpath": {"type": "string", "pattern": "^assets/([^/\\\\]+/)*[^/\\\\]+$", "not": {"pattern": "(^|/)\\.\\.(/|$)"}},
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "film_id", "format"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "film_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"},
+        "format": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["size", "fps", "duration_policy"],
+          "properties": {
+            "size": {"type": "string", "pattern": "^(1[68]|[2-9][02468]|[1-9][0-9]+[02468])x(1[68]|[2-9][02468]|[1-9][0-9]+[02468])$"},
+            "fps": {"type": "integer", "minimum": 1, "maximum": 120},
+            "duration_policy": {"enum": ["fit", "fixed"]},
+            "duration_s": {"type": "number", "exclusiveMinimum": 0}
+          },
+          "if": {"properties": {"duration_policy": {"const": "fixed"}}, "required": ["duration_policy"]},
+          "then": {"required": ["duration_s"]},
+          "else": {"not": {"required": ["duration_s"]}}
+        },
+        "lead": {"$ref": "#/$defs/num_ge0"},
+        "tail": {"$ref": "#/$defs/num_ge0"},
+        "line_gap": {"$ref": "#/$defs/num_ge0"},
+        "section_gap": {"$ref": "#/$defs/num_ge0"}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source"],
+      "properties": {
+        "value": {},
+        "source": {"enum": ["user", "model", "default"]},
+        "evidence": {"type": "string"}
+      }
+    },
+    "decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "film_type": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"type": "string", "pattern": "^[a-z0-9-]{1,40}$"}}}]},
+        "audience": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"$ref": "#/$defs/nonempty"}}}]},
+        "energy": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"enum": ["calm", "lively", "hype"]}}}]},
+        "rhythm_source": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"enum": ["narration", "content"]}}}]},
+        "remember_one": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"$ref": "#/$defs/nonempty"}}}]},
+        "ground": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}}}]},
+        "voice": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"enum": ["marketing", "light-technical"]}}}]},
+        "presentation": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"enum": ["paged", "continuous-stage"]}}}]},
+        "purpose": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"$ref": "#/$defs/nonempty"}}}]},
+        "shown_where": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"$ref": "#/$defs/nonempty"}}}]},
+        "viewer_action": {"allOf": [{"$ref": "#/$defs/decision"}, {"properties": {"value": {"$ref": "#/$defs/nonempty"}}}]}
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "path"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,39}$"},
+        "kind": {"enum": ["capture", "logo", "font", "music", "image", "data"]},
+        "path": {"$ref": "#/$defs/assetpath"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "license": {"type": "string"},
+        "claims_ref": {"$ref": "#/$defs/assetpath"},
+        "portrays": {
+          "type": "object", "additionalProperties": false, "minProperties": 1,
+          "properties": {"subject_name": {"$ref": "#/$defs/nonempty"}, "subject_logo": {"$ref": "#/$defs/nonempty"}}
+        },
+        "required": {
+          "type": "object", "additionalProperties": false, "description": "Required asset (TV-22, pagescan QF-8)",
+          "properties": {"min_visible_s": {"type": "number", "exclusiveMinimum": 0}, "no_crop": {"type": "boolean"}}
+        }
+      }
+    },
+    "state": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,23}$"},
+        "facts": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}},
+        "source": {"type": "string"}
+      },
+      "required": ["id"]
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anchor"],
+      "properties": {
+        "anchor": {"type": "string", "pattern": "^(line:L[0-9]{1,3}\\.(start|end)|clip:[A-Z][A-Za-z0-9-]{0,15}\\.(start|end)|film\\.end)$"},
+        "offset": {"type": "number"}
+      }
+    },
+    "timeref": {"oneOf": [{"type": "number", "minimum": 0}, {"$ref": "#/$defs/anchor"}]},
+    "dur": {
+      "oneOf": [
+        {"type": "number", "exclusiveMinimum": 0},
+        {"$ref": "#/$defs/anchor"},
+        {"type": "object", "additionalProperties": false, "required": ["lines"],
+         "properties": {"lines": {"type": "string", "pattern": "^L[0-9]{1,3}-L[0-9]{1,3}$"}, "pad_after": {"$ref": "#/$defs/num_ge0"}}}
+      ]
+    },
+    "interval": {
+      "type": "object", "additionalProperties": false, "required": ["t0", "t1", "why"],
+      "properties": {"t0": {"$ref": "#/$defs/num_ge0"}, "t1": {"type": "number", "exclusiveMinimum": 0}, "why": {"$ref": "#/$defs/nonempty"}}
+    },
+    "clip_common": {
+      "properties": {
+        "at": {"$ref": "#/$defs/timeref"},
+        "dur": {"$ref": "#/$defs/dur"},
+        "motion_intent": {"type": "array", "items": {"type": "string"}},
+        "freedom": {"enum": ["locked", "guided", "free"]},
+        "device": {
+          "oneOf": [
+            {"type": "object", "additionalProperties": false, "required": ["component"],
+             "properties": {"component": {"$ref": "#/$defs/ref"}, "params": {"type": "object"}}},
+            {"type": "object", "additionalProperties": false, "required": ["family"],
+             "properties": {"family": {"type": "string", "pattern": "^[a-z0-9-]{1,40}$"},
+                            "tone": {"oneOf": [{"enum": ["calm", "lively", "hype"]},
+                                               {"type": "array", "minItems": 1, "items": {"enum": ["calm", "lively", "hype"]}}]}}}
+          ]
+        },
+        "headline": {"type": "string"}, "visual": {"type": "string"}, "data": {"type": "string"},
+        "layout": {"type": "string"}, "what": {"type": "string"},
+        "claims": {"type": "object", "additionalProperties": false,
+                   "properties": {"headline": {"$ref": "#/$defs/claim"}, "data": {"$ref": "#/$defs/claim"}}},
+        "camera": {"type": "object", "additionalProperties": false,
+                   "properties": {"move": {"type": "string"}, "pace": {"type": "string"},
+                                  "goal": {"enum": ["lead-eye", "section-change", "show-product", "opening-in", "ambience", "none"]},
+                                  "method": {"enum": ["stage-2d", "card-3d", "scene-3d", "single-layer", "footage"]}}},
+        "ref_seg": {"type": "string"}, "ref_what": {"type": "string"},
+        "evidence": {"type": "object", "additionalProperties": {"type": "string"}},
+        "override": {
+          "type": "object", "additionalProperties": false, "required": ["why", "source", "date"],
+          "properties": {"why": {"$ref": "#/$defs/nonempty"}, "source": {"enum": ["user", "model"]},
+                         "confirmed": {"type": "string"}, "date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}},
+          "if": {"properties": {"source": {"const": "user"}}, "required": ["source"]},
+          "then": {"required": ["confirmed"], "properties": {"confirmed": {"$ref": "#/$defs/nonempty"}}}
+        },
+        "declares": {"type": "object", "additionalProperties": false,
+                     "properties": {"holds": {"type": "array", "items": {"$ref": "#/$defs/interval"}},
+                                    "blacks": {"type": "array", "items": {"$ref": "#/$defs/interval"}},
+                                    "silences": {"type": "array", "items": {"$ref": "#/$defs/interval"}}}},
+        "ground_exception": {"type": "object", "additionalProperties": false,
+                             "properties": {"color": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "why": {"type": "string"}}},
+        "intents": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["kind", "expect"],
+          "properties": {"kind": {"enum": ["cut_on_line", "cut_on_bar", "end_hold", "ground_locked", "claims_traceable"]},
+                         "expect": {}, "tolerance": {}, "moment": {}}}},
+        "keys": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["id", "at", "role", "what"],
+          "properties": {"id": {"type": "string", "pattern": "^K[A-Za-z0-9-]{1,15}$"},
+                         "at": {"$ref": "#/$defs/num_ge0"}, "role": {"enum": ["key", "breakdown"]},
+                         "hold": {"$ref": "#/$defs/num_ge0"}, "what": {"type": "string", "pattern": "\\S"}}}},
+        "shows_state": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "clip": {
+      "allOf": [{"$ref": "#/$defs/clip_common"}],
+      "type": "object",
+      "required": ["id", "role", "at", "dur", "motion_intent"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9-]{0,15}$"},
+        "role": {"enum": ["opening", "feature", "chapter-card", "end-card", "interlude"]},
+        "transition_in": {"oneOf": [
+          {"const": "cut"},
+          {"type": "object", "additionalProperties": false, "required": ["component", "dur"],
+           "properties": {"component": {"$ref": "#/$defs/ref"}, "dur": {"type": "number", "exclusiveMinimum": 0}}}
+        ]},
+        "speed": {"type": "object", "additionalProperties": false, "required": ["asset", "start_lt", "table"],
+                  "properties": {"asset": {"type": "string"}, "start_lt": {"$ref": "#/$defs/num_ge0"},
+                                 "table": {"type": "array", "items": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}}}},
+        "at": true, "dur": true, "motion_intent": true, "freedom": true, "device": true, "headline": true, "visual": true,
+        "data": true, "layout": true, "what": true, "claims": true, "camera": true, "ref_seg": true, "ref_what": true,
+        "evidence": true, "override": true, "declares": true, "ground_exception": true, "intents": true, "keys": true,
+        "shows_state": true
+      },
+      "additionalProperties": false
+    },
+    "overlay": {
+      "allOf": [{"$ref": "#/$defs/clip_common"}],
+      "type": "object",
+      "required": ["id", "role", "at", "dur", "z", "motion_intent"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9-]{0,15}$"},
+        "role": {"const": "overlay"},
+        "z": {"type": "integer", "minimum": 1},
+        "at": true, "dur": true, "motion_intent": true, "freedom": true, "device": true, "headline": true, "visual": true,
+        "data": true, "layout": true, "what": true, "claims": true, "camera": true, "ref_seg": true, "ref_what": true,
+        "evidence": true, "override": true, "declares": true, "ground_exception": true, "intents": true, "keys": true,
+        "shows_state": true
+      },
+      "additionalProperties": false
+    },
+    "line": {
+      "type": "object", "additionalProperties": false, "required": ["id", "text", "section"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^L[0-9]{1,3}$"},
+        "text": {"$ref": "#/$defs/nonempty"}, "say": {"$ref": "#/$defs/nonempty"}, "asr": {"$ref": "#/$defs/nonempty"},
+        "section": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9-]{0,15}$"},
+        "gap_after": {"$ref": "#/$defs/num_ge0"},
+        "claim": {"$ref": "#/$defs/claim"}
+      }
+    },
+    "sfx": {
+      "type": "object", "additionalProperties": false, "required": ["at", "sound", "gain_db", "why"],
+      "properties": {
+        "at": {"$ref": "#/$defs/timeref"}, "sound": {"$ref": "#/$defs/nonempty"},
+        "gain_db": {"type": "number", "minimum": -60, "maximum": 6}, "why": {"$ref": "#/$defs/nonempty"},
+        "target": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9-]{0,15}$"}
+      }
+    },
+    "tracks": {
+      "type": "object", "additionalProperties": false, "required": ["picture"],
+      "properties": {
+        "picture": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/clip"}},
+        "overlay": {"type": "array", "items": {"$ref": "#/$defs/overlay"}},
+        "narration": {"type": "array", "items": {"$ref": "#/$defs/line"}},
+        "music": {"type": "null"},
+        "sfx": {"type": "array", "items": {"$ref": "#/$defs/sfx"}},
+        "captions": {"oneOf": [
+          {"type": "null"},
+          {"type": "object", "additionalProperties": false, "required": ["from", "style"],
+           "properties": {"from": {"const": "narration"}, "style": {"$ref": "#/$defs/ref"}}}
+        ]}
+      }
+    }
+  }
+}

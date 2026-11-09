@@ -1,0 +1,41 @@
+# .gitignore born classified -- copied from ~/.claude/tools/asset-protection/gitignore.template.
+
+# python caches and build output
+# class: regenerable
+__pycache__/
+*.py[cod]
+dist/
+
+# installed dependencies
+# class: third-party
+# kind: dependency-install
+node_modules/
+
+# film outputs a run of the shipped tools writes next to a page or into a scratch folder
+# (frames, rendered videos, check records): regenerable from the page by tools/filmkit/render.py
+# class: regenerable
+*.mp4
+*.wav
+*.mkv
+**/.filmkit/
+**/build/
+**/review/stills/
+**/review/windows/
+sheet_1fps.png
+*.check.json
+*.check.md
+render.json
+**/versions/
+
+# scratch folder the verify scripts and the asset builders use
+# class: regenerable
+.scratch/
+
+# OS and editor droppings
+# class: regenerable
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/

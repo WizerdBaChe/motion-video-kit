@@ -1,0 +1,10 @@
+# Repo-authored files are read by agents, Node or Python on any platform: LF.
+* text=auto eol=lf
+# reference-impl/ is a byte copy of the origin (spec section 9: byte-identical except declared edits);
+# a few origin files are CRLF, so git must not convert anything there.
+reference-impl/** -text
+*.png binary
+*.gif binary
+*.webp binary
+*.zip binary
+*.woff2 binary

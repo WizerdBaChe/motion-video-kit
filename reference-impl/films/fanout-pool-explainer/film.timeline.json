@@ -1,0 +1,493 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "film_id": "fanout-pool-explainer",
+    "format": {
+      "size": "1080x1350",
+      "fps": 30,
+      "duration_policy": "fit"
+    },
+    "lead": 0.3,
+    "tail": 2.0
+  },
+  "decisions": {
+    "film_type": {
+      "value": "narrated-explainer",
+      "source": "model",
+      "evidence": "rules file has no caption-only explainer; on-screen text lines stand in for narration (user 2026-10-19: no narration, edge TTS too robotic, focus on presentation)"
+    },
+    "audience": {
+      "value": "會寫程式、但還沒碰過並行／併發的人",
+      "source": "user",
+      "evidence": "AskUserQuestion 2026-10-19"
+    },
+    "energy": {
+      "value": "lively",
+      "source": "user",
+      "evidence": "AskUserQuestion 2026-10-19"
+    },
+    "rhythm_source": {
+      "value": "content",
+      "source": "model",
+      "evidence": "no narration (user) and no music asset; sections are timed by reading time of on-screen text | stillness: still runs p90 <= 2.2 s, max <= 4 s except the end-card tail; under a key hold only a CONTENT element moves (a result landing, the queue ticking, a slow lane) or the frame holds still; a whole-stage drift is the named defect (user 2026-10-20 read v2: 活潑感被定調為內容一直漂浮著上下晃...到底在漂浮甚麼; film-types §3 motion-under-a-hold row)"
+    },
+    "remember_one": {
+      "value": "限住同時在跑的數量，結果才回得來",
+      "source": "model",
+      "evidence": "playbook step 4: one sentence that holds without numbers or jargon; overturns 'more workers = faster'"
+    },
+    "ground": {
+      "value": "#F3EFE6",
+      "source": "model",
+      "evidence": "user prefers light editorial; design-axes §6 single resident ground"
+    },
+    "voice": {
+      "value": "light-technical",
+      "source": "model",
+      "evidence": "design-axes axis I = pro-explainer (real names + where the viewer meets them + hands-on section)"
+    },
+    "presentation": {
+      "value": "continuous-stage",
+      "source": "user",
+      "evidence": "main axis with inserts (title, fan analogy beats, code close-up, call-to-action card); user 2026-10-19 after v1: 主軸保留但要能插入其他項目而不是完全鎖死; inserts = title, fan analogy beats, code close-up, call-to-action card | analogy: one family: a hand fan opening (fan-out) and folding shut (fan-in); subordinate, 1-2 beats each time, back to the stage (user 2026-10-19: 沒有一些類比性的示意說明? 例如為甚麼是\"fan\"-out 的散狀; film-types §3 analogy row. The fan is a picture of the name, never stated as the term's etymology (no source found))"
+    },
+    "purpose": {
+      "value": "創意性科普短片實驗：把 fan-out 工作池講到觀眾能自己設上限",
+      "source": "user",
+      "evidence": "user prompt 2026-10-19"
+    },
+    "shown_where": {
+      "value": "社群直式短片（IG／Threads 4:5，靜音自動播放也看得懂）",
+      "source": "model",
+      "evidence": "vertical 4:5 per user; no audio"
+    },
+    "viewer_action": {
+      "value": "看完能說出 fan-out 是為了更快拿回結果，而前提是限住同時在跑的數量",
+      "source": "model",
+      "evidence": "film-types §3 end row (2026-10-20): the end card answers the opening definition with what fan-out is FOR; how-to stays in the hands-on section F5 (user: 應該點名的是fan-out用來幹嘛(首尾呼應)，而不是fan-out怎麼用更好)"
+    }
+  },
+  "assets": [
+    {
+      "id": "research",
+      "kind": "data",
+      "path": "assets/research.md",
+      "license": "own research notes citing public docs",
+      "claims_ref": "assets/research.md"
+    },
+    {
+      "id": "sim",
+      "kind": "data",
+      "path": "assets/simulation.md",
+      "license": "own",
+      "claims_ref": "assets/simulation.md"
+    }
+  ],
+  "tracks": {
+    "picture": [
+      {
+        "id": "S0",
+        "role": "opening",
+        "at": 0,
+        "dur": 4.0,
+        "freedom": "guided",
+        "device": {
+          "family": "opening",
+          "tone": "lively"
+        },
+        "headline": "fan-out：一個工作，同時分給很多人做",
+        "data": "小字：分出去叫 fan-out，收回來叫 fan-in",
+        "claims": {
+          "headline": "research:一個來源的工作，分給多個執行者同時做"
+        },
+        "what": "Title insert, the film's first frame of meaning. One task tile sits alone; it splits into 20 tiles riding 20 thin lines that swing open like a hand fan opening, ribs spreading from one pivot. The name fan-out (solid ink, a normal headline size, never an outline or giant background word) lands with the opening and the plain sentence with it; a small line says folding back is fan-in. The fan is a picture of the name, not a claim about where the word comes from. Then the ribs straighten into the 20 lanes of the stage, each carrying its tile (the insert hands over to the main axis, no cut).",
+        "motion_intent": [
+          "one tile splitting into 20 ribs that swing open like a fan: this is what fan-out looks like",
+          "ribs straightening into lanes: the analogy hands over to the real stage"
+        ],
+        "camera": {
+          "goal": "opening-in",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KS0-name",
+            "at": 1.6,
+            "role": "key",
+            "hold": 1.6,
+            "what": "the open fan, the name fan-out and the plain sentence readable at once; the fan-in line readable as small text"
+          }
+        ]
+      },
+      {
+        "id": "S1",
+        "role": "opening",
+        "at": {
+          "anchor": "clip:S0.end"
+        },
+        "dur": 6.0,
+        "freedom": "guided",
+        "device": {
+          "family": "opening",
+          "tone": "lively"
+        },
+        "headline": "一次全部分出去：20 個子代理",
+        "data": "回來的結果 0 / 20；小字（獨立一行，3.0 s 起出現）：Claude Code 預設同時 20 個子代理，可調。來源：Claude Code 文件〈Create custom subagents〉code.claude.com/docs/en/sub-agents（查證 2026-10-19）",
+        "claims": {
+          "headline": "research:寬幅 fan-out 可在所有 worker 還在半途時把預算燒光",
+          "data": "research:Claude Code 預設同時 20 個子代理在跑時再生一個會失敗"
+        },
+        "what": "Seam in: the fan's ribs are now the 20 lanes and 20 task tiles drop into them at once (fan-out with no limit). Each lane's progress bar starts filling; a single budget bar labelled 用量額度 (usage limit) drains while they run. The budget hits zero while every bar is only about 35% full: all 20 bars freeze and go grey. The result tray stays empty; its counter reads 0 / 20. The small source stamp enters at about 1.5 s on its own line (on screen at least 4.0 s), separate from the budget scene, so the default is not read as the cause of the burn. This is a real scene the viewer may meet (spawning many subagents or requests at once), framed as 'you might have seen this', never as an official limit or as the author's private rule.",
+        "motion_intent": [
+          "20 tiles dropping at once: everything was sent at the same moment (fan-out)",
+          "budget bar draining while bars fill: cost is paid while work runs, not when results return",
+          "bars freezing grey at about 35%: the work stopped before anything finished",
+          "empty tray, counter 0 / 20: nothing came back"
+        ],
+        "camera": {
+          "goal": "opening-in",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KS1-burst",
+            "at": 1.6,
+            "role": "breakdown",
+            "what": "all 20 lanes are running at once and the budget bar is visibly draining"
+          },
+          {
+            "id": "KS1-zero",
+            "at": 4.2,
+            "role": "key",
+            "hold": 1.2,
+            "what": "headline, 20 frozen grey bars, the 用完 mark and the counter 0 / 20 readable at once; the source stamp (document title + address + check date) readable as small text; the frozen frame holds still (the freeze is the message)"
+          }
+        ]
+      },
+      {
+        "id": "F1",
+        "role": "feature",
+        "at": {
+          "anchor": "clip:S1.end"
+        },
+        "dur": 7.0,
+        "freedom": "guided",
+        "device": {
+          "family": "data-viz",
+          "tone": "lively"
+        },
+        "headline": "直覺：worker 越多越快？",
+        "data": "下游一次只吃得下這麼多；超過的拿到 HTTP 429（請求太多）",
+        "claims": {
+          "data": "research:HTTP 429 表示在給定時間內請求太多"
+        },
+        "what": "Seam in: the 20 grey bars fade out over about 0.4 s while queue, tray and ground stay; no cut. Same stage, reset. Headline asks the viewer's own belief as a question. Then a limit line appears across the lanes: the downstream limit (an API, a database). Lanes are added one by one (1, 2, 4, 8 ...); up to the limit each new lane speeds the tray up; past it, extra tiles hit the line and bounce back stamped 429, and the throughput bar (no digits) stops rising. The question is answered on screen: no, past the limit more workers only adds rejects.",
+        "motion_intent": [
+          "lanes added one by one: the viewer's belief being tried",
+          "tiles bouncing off the limit line with a 429 stamp: the downstream refuses the excess",
+          "throughput bar rising then flat (no digits): speed saturates at the limit"
+        ],
+        "camera": {
+          "goal": "lead-eye",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KF1-q",
+            "at": 1.0,
+            "role": "key",
+            "hold": 1.0,
+            "what": "the question headline fully readable before the experiment starts"
+          },
+          {
+            "id": "KF1-429",
+            "at": 4.8,
+            "role": "key",
+            "hold": 1.4,
+            "what": "limit line, at least two bounced tiles with a readable 429 stamp, the flat throughput bar and the data sentence"
+          }
+        ]
+      },
+      {
+        "id": "F2",
+        "role": "feature",
+        "at": {
+          "anchor": "clip:F1.end"
+        },
+        "dur": 8.0,
+        "freedom": "guided",
+        "device": {
+          "family": "data-viz",
+          "tone": "lively"
+        },
+        "headline": "工作池：固定幾個位子，做完一個才拿下一個",
+        "data": "3 個 worker、5 個各 1 秒的工作 → 約 2 秒做完（逐一做要 5 秒）；名稱：worker pool／bounded concurrency",
+        "claims": {
+          "headline": "research:長駐、固定大小的一組 worker，從共用的佇列取工作",
+          "data": "research:3 個 worker、5 個各 1 秒的工作，程式約 2 秒完成"
+        },
+        "what": "Seam in: the lane collapse itself is the transition (no cut). The 20 lanes collapse to 3 fixed slots (the pool). 5 tiles wait in the queue. A free slot pulls the next tile; when a tile finishes, its result drops into the tray in the accent colour and the slot pulls again. A clock runs and stops at about 2 s; next to it a ghost row of the same 5 tiles laid end to end reads 5 s. Labels name the real terms once: worker pool, bounded concurrency. Source line: Go by Example, Worker Pools.",
+        "motion_intent": [
+          "lanes collapsing to 3 slots: the fix is a fixed number of places",
+          "slot pulling the next tile only when free: work is taken, not pushed",
+          "result dropping into the tray in the accent colour: a result came back",
+          "clock stopping at about 2 s next to the 5 s ghost row: the pool still wins over one by one"
+        ],
+        "camera": {
+          "goal": "lead-eye",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KF2-name",
+            "at": 1.8,
+            "role": "key",
+            "hold": 1.0,
+            "what": "headline and the 3 slots with the label worker pool readable"
+          },
+          {
+            "id": "KF2-pull",
+            "at": 3.8,
+            "role": "breakdown",
+            "what": "one slot is empty for an instant and is pulling the next tile from the queue"
+          },
+          {
+            "id": "KF2-time",
+            "at": 6.0,
+            "role": "key",
+            "hold": 1.6,
+            "what": "the clock stopped at about 2 s next to the 5 s ghost row, both numbers and the source line readable"
+          }
+        ]
+      },
+      {
+        "id": "F3",
+        "role": "feature",
+        "at": {
+          "anchor": "clip:F2.end"
+        },
+        "dur": 8.5,
+        "freedom": "guided",
+        "device": {
+          "family": "data-viz",
+          "tone": "lively"
+        },
+        "headline": "收回來的時間，看最慢的那一個",
+        "data": "每次同時問 100 台，約 63% 的機會至少要等一台慢的（1 台有 1% 的機率慢；1 − 0.99^100）；名稱 fan-in、tail latency 在慢工作那一拍出現；類比一句：扇子要等最後一根收回來，才合得起來",
+        "claims": {
+          "data": "research:同時問 100 台時約 63% 的使用者請求超過 1 秒"
+        },
+        "what": "Results now flow from the slots into the tray (fan-in). All tiles land fast except one that crawls; a bracket spans the waiting gap. Analogy beat (insert, about 1.5 s): the hand fan from the opening returns small, together with the tray, every rib folded except one still out; a short line says a fan only closes when the last rib comes in; then the fan leaves and the stage carries on. Then the stage zooms out to a grid of 100 small lanes, 1 in 100 tinted slow; a counter turns the arithmetic 1 − 0.99^100 into about 63%. Source line: Dean & Barroso, The Tail at Scale (2013).",
+        "motion_intent": [
+          "one tile crawling while others have landed: the slowest decides when everything is back",
+          "bracket stretching over the wait: the cost of waiting made visible",
+          "fan folding with one rib still out: fan-in waits for the last one (analogy, subordinate)",
+          "zoom out to 100 lanes with one slow in each hundred: wider fan-out makes hitting a slow one likely",
+          "counter running to 63%: the arithmetic, not an estimate"
+        ],
+        "camera": {
+          "goal": "lead-eye",
+          "method": "stage-2d",
+          "move": "zoom out from the tray to the 100-lane grid at about 4.0 s"
+        },
+        "keys": [
+          {
+            "id": "KF3-slow",
+            "at": 2.6,
+            "role": "key",
+            "hold": 1.0,
+            "what": "headline, the names fan-in / tail latency, the slow tile with its wait bracket and the half-folded fan with its line readable"
+          },
+          {
+            "id": "KF3-63",
+            "at": 6.4,
+            "role": "key",
+            "hold": 1.4,
+            "what": "the 100-lane grid, the formula and the 63% number with its source line readable"
+          }
+        ]
+      },
+      {
+        "id": "F4",
+        "role": "feature",
+        "at": {
+          "anchor": "clip:F3.end"
+        },
+        "dur": 6.5,
+        "freedom": "guided",
+        "device": {
+          "family": "data-viz",
+          "tone": "lively"
+        },
+        "headline": "額度用完時，已經收回來的還在",
+        "data": "同樣 20 個工作、同樣的額度，一次只跑 2 個：額度歸零時已收 6 / 20（示意）",
+        "what": "Seam in: the stage rewinds to the S1 set-up (20 tiles in the queue, the same labelled budget bar 用量額度), no cut. A pool of 2 slots. Pairs run, land in the tray in the accent colour, the next pair starts. The budget reaches zero half way through the fourth pair: those two bars freeze grey, but the tray already holds 6 results and its counter reads 6 / 20. The numbers follow assets/simulation.md (budget = 7 tile-lengths, the same as S1), labelled 示意 in small text. After the freeze the stillness is the message (up to about 3.2 s, inside the 4 s max); the frame holds still apart from the tray counter settling, nothing that reads as work still running and no whole-stage drift.",
+        "motion_intent": [
+          "pairs landing one after another: results are banked as you go",
+          "budget hitting zero mid-pair: the same limit as the opening",
+          "tray counter staying at 6 / 20 while two bars freeze: the banked part survives"
+        ],
+        "camera": {
+          "goal": "lead-eye",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KF4-kept",
+            "at": 4.0,
+            "role": "key",
+            "hold": 1.6,
+            "what": "headline, the two frozen bars and the tray counter 6 / 20 with the small 示意 label readable"
+          }
+        ],
+        "claims": {
+          "data": "sim:F4：一次只跑 2 個，額度一樣：前 3 組（6 個）跑完，第 4 組跑到一半時額度歸零，已收 6 / 20。"
+        }
+      },
+      {
+        "id": "F5",
+        "role": "feature",
+        "at": {
+          "anchor": "clip:F4.end"
+        },
+        "dur": 11.0,
+        "freedom": "guided",
+        "device": {
+          "family": "data-viz",
+          "tone": "lively"
+        },
+        "headline": "你的程式裡，上限就在這一行",
+        "data": "Python ThreadPoolExecutor(max_workers=4)／asyncio.Semaphore(4)；Go g.SetLimit(4)；判斷：N 跟著下游上限走，不跟著工作數走；下游上限：看 API 文件的 rate limit，或 429 回應的 Retry-After；第一步：先設小，結果收得回來再往上加；驗收：429 變少、排隊不會一直變長",
+        "claims": {
+          "data": "research:Go `errgroup` 的 `Group.Go` 在達到上限時會阻塞到有空位"
+        },
+        "what": "Hands-on section, four parts in order, each its own readable beat. (1) Where: code close-up insert, the stage dims far enough that no lane or tray line crosses the code; three real code lines appear one after another, the limit number in each set in ink, bold and underlined, each line's language/API tag on its own small line, code in a monospace size that keeps the longest line (ThreadPoolExecutor(max_workers=4), 33 chars) clear of both gutters; no default values shown. Sources: research §6 items 1, 6, 7. (2) Judgement: the limit line from F1 returns; the slot count is set by that line, not by the length of the queue; one short line says where to find that limit (the API's rate-limit docs, or Retry-After on a 429). (3) First step: the slot count starts small and grows by one only while the tray keeps filling. (4) Check: two small gauges, 429 count falling and queue length staying flat, labelled as what to watch. No invented API, no version-volatile number on screen.",
+        "motion_intent": [
+          "code lines appearing one by one with the limit number lit: here is the line in your own code",
+          "limit line returning over the slots: the number comes from downstream",
+          "slot count growing by one while the tray fills: start small, raise it on evidence",
+          "two gauges settling: how you know it worked"
+        ],
+        "camera": {
+          "goal": "lead-eye",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KF5-code",
+            "at": 2.6,
+            "role": "key",
+            "hold": 1.2,
+            "what": "headline and all three code lines with the lit limit numbers readable"
+          },
+          {
+            "id": "KF5-rule",
+            "at": 5.6,
+            "role": "key",
+            "hold": 1.2,
+            "what": "judgement sentence readable with the limit line and the slots"
+          },
+          {
+            "id": "KF5-step",
+            "at": 7.6,
+            "role": "key",
+            "what": "first-step sentence readable while the slot count is mid-growth and the tray still filling",
+            "hold": 1.2
+          },
+          {
+            "id": "KF5-check",
+            "at": 9.4,
+            "role": "key",
+            "hold": 1.2,
+            "what": "the two gauges and their labels readable"
+          }
+        ]
+      },
+      {
+        "id": "E1",
+        "role": "end-card",
+        "at": {
+          "anchor": "clip:F5.end"
+        },
+        "dur": 4.0,
+        "freedom": "guided",
+        "device": {
+          "family": "end-card",
+          "tone": "lively"
+        },
+        "headline": "限住同時在跑的數量，結果才回得來",
+        "data": "20 / 20（示意）",
+        "what": "Seam in: the F5 slots and limit line stay; no cut. Bookend of the opening: the same 20 tiles, a pool of 4 slots and the F1 limit line, NO budget bar (limiting concurrency does not lower total spend; this frame is about not being rejected). Results stream into the tray in the accent colour and the counter climbs to 20 / 20 (示意). As the last result lands, the opening's hand fan folds fully shut (fan-in complete), answering the opening's open fan. The remember line lands as the largest text.",
+        "motion_intent": [
+          "counter climbing to 20 / 20: the opening's 0 / 20 answered",
+          "the fan folding fully shut: everything came back (bookend of the opening fan)"
+        ],
+        "camera": {
+          "goal": "none",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KE1-full",
+            "at": 1.8,
+            "role": "key",
+            "hold": 0.6,
+            "what": "tray full, counter 20 / 20 and the closed fan readable"
+          },
+          {
+            "id": "KE1-line",
+            "at": 2.8,
+            "role": "key",
+            "hold": 1.2,
+            "what": "the remember line fully readable"
+          }
+        ],
+        "claims": {
+          "data": "sim:E1：只看速率上限（同時在跑的數量不超過下游上限），沒有額度條；不被 429 退件，回來 20 / 20。"
+        }
+      },
+      {
+        "id": "E2",
+        "role": "end-card",
+        "at": {
+          "anchor": "clip:E1.end"
+        },
+        "dur": 2.5,
+        "freedom": "guided",
+        "device": {
+          "family": "end-card",
+          "tone": "lively"
+        },
+        "headline": "fan-out：分出去，是為了更快把結果拿回來",
+        "data": "結尾卡：fan-out 工作池｜分出去，是為了更快拿回來；前提：限住同時在跑的數量",
+        "what": "Bookend of the opening, then the end card. The stage clears to the ground; the opening's definition line returns in the same type and is answered by what fan-out is FOR: sending work out so the results come back sooner. The closed fan mark from E1 sits with it (opened at S0, shut at E1). The end card resolves around it: film title fan-out 工作池 and the remember line as the condition (前提) join; all of it holds still through meta.tail (2.0 s). No how-to sentence and no code chips here: how-to lives in F5.",
+        "motion_intent": [
+          "the opening definition returning and its answer landing: the film closes the question it opened (bookend)",
+          "end card resolving, then still: the film ends on its name, its purpose and the condition"
+        ],
+        "camera": {
+          "goal": "none",
+          "method": "stage-2d"
+        },
+        "keys": [
+          {
+            "id": "KE2-why",
+            "at": 0.9,
+            "role": "key",
+            "hold": 0.8,
+            "what": "the returned definition and its answer (what fan-out is for) readable, with the closed fan mark"
+          },
+          {
+            "id": "KE2-card",
+            "at": 2.2,
+            "role": "key",
+            "hold": 0.3,
+            "what": "end card: title, closed fan mark, purpose line and the condition line readable, nothing moving"
+          }
+        ]
+      }
+    ],
+    "music": null,
+    "captions": null
+  }
+}

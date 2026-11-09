@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "film_types": ["intro-ad", "hype-ad", "product-tour", "data-showreel", "narrated-explainer", "profile-reel", "music-video"],
+  "rules": [
+    {
+      "id": "end_hold",
+      "owner": "filmkit",
+      "kind": "range",
+      "film_types": null,
+      "select": {"source": "frozen", "anchor": "end", "max_gap_s": 0.1},
+      "range_s": [1.5, 2.5],
+      "sentence_zh": "片尾畫面靜止 {measured} 秒（{t0}–{t1} 秒）。依據：{basis}",
+      "missing_zh": "片尾沒有偵測到長於 {floor_s} 秒（偵測下限）的靜止。依據：{basis}",
+      "basis": "片尾停留 1.5–2.5 秒（W30 你 2026-10-10 裁決；先前 r14、r17 為 2.5–3.5 秒）",
+      "provisional": true,
+      "review_when": "the end-hold ruling changes (design review-when)"
+    },
+    {
+      "id": "head_hold",
+      "owner": "filmkit",
+      "kind": "range",
+      "film_types": null,
+      "select": {"source": "frozen", "anchor": "first", "max_t0_s": 5.0},
+      "range_s": [0, 1.5],
+      "missing_ok": true,
+      "sentence_zh": "片頭 5 秒內的第一段靜止畫面 {measured} 秒（{t0}–{t1} 秒）。依據：{basis}",
+      "missing_zh": "片頭 5 秒內沒有偵測到長於 {floor_s} 秒（偵測下限）的靜止。依據：{basis}",
+      "basis": "片頭 5 秒內的第一段靜止不超過 1.5 秒（W30 E14 你 2026-10-10 裁決；先前沒有片頭規則）",
+      "provisional": true,
+      "review_when": "the head-hold ruling changes (design review-when)"
+    }
+  ],
+  "params": {
+    "timeline": {
+      "free_share_max": 0.30,
+      "stock_devices": ["particle-burst", "tunnel", "floating-card-pile", "glitch", "big-text-as-design", "fake-hud"],
+      "basis": {"free_share_max": "D-T9 暫定 30%（設計 §5.2）", "stock_devices": "production-order E；使用者可增減"}
+    }
+  },
+  "targets": {
+    "ebu-r128": {
+      "lufs": -23.0,
+      "true_peak": -1.0,
+      "tolerance_lu": 0.5,
+      "source": "EBU R 128 (Geneva, June 2014), https://tech.ebu.ch/docs/r/r128-2014.pdf, read 2026-10-09: Target Level -23.0 LUFS, deviation generally not exceeding ±0.5 LU (±1.0 LU where not practically achievable, e.g. live); Maximum Permitted True Peak Level -1 dBTP during production",
+      "review_when": "EBU publishes a revision of R 128"
+    },
+    "spotify": {
+      "lufs": -14.0,
+      "true_peak": -1.0,
+      "source": "Spotify for Artists, Loudness normalization, https://support.spotify.com/us/artists/article/loudness-normalization/, read 2026-10-09: target the master at -14 dB integrated LUFS; keep true peak below -1 dB TP max",
+      "review_when": "Spotify changes its loudness normalization article"
+    }
+  }
+}
